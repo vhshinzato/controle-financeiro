@@ -54,23 +54,23 @@ const dfToDB = (df,uid) => ({id:df.id,user_id:uid,categoria:df.categoria,valor:d
 
 function Modal({titulo,onClose,children}) {
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">{titulo}</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500"><X size={18}/></button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 className="text-base font-semibold text-gray-900">{titulo}</h2>
+          <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"><X size={17}/></button>
         </div>
-        <div className="overflow-y-auto p-5 flex flex-col gap-4">{children}</div>
+        <div className="overflow-y-auto px-6 py-5 flex flex-col gap-5">{children}</div>
       </div>
     </div>
   );
 }
 function Campo({label,children}) {
-  return <div className="flex flex-col gap-1"><label className="text-sm font-medium text-gray-600">{label}</label>{children}</div>;
+  return <div className="flex flex-col gap-1.5"><label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</label>{children}</div>;
 }
-const inp = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400";
-const btnP = "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors";
-const btnS = "bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors";
+const inp = "w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent focus:bg-white transition-colors placeholder:text-gray-400";
+const btnP = "bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm";
+const btnS = "bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors";
 
 function CardResumo({titulo,valor,icon:Icon,cor,sub,destaque}) {
   if(destaque) return (
