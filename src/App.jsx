@@ -72,15 +72,31 @@ const inp = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:
 const btnP = "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors";
 const btnS = "bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors";
 
-function CardResumo({titulo,valor,icon:Icon,cor,sub}) {
-  const bg={indigo:'bg-indigo-50 text-indigo-600',green:'bg-green-50 text-green-600',red:'bg-red-50 text-red-600',blue:'bg-blue-50 text-blue-600'};
+function CardResumo({titulo,valor,icon:Icon,cor,sub,destaque}) {
+  if(destaque) return (
+    <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl p-5 shadow-lg text-white col-span-2 lg:col-span-1">
+      <div className="flex items-start justify-between mb-4">
+        <p className="text-sm text-indigo-200 font-medium">{titulo}</p>
+        <div className="p-2 bg-white/20 rounded-xl"><Icon size={18}/></div>
+      </div>
+      <p className="text-3xl font-bold tracking-tight">{fmt(valor)}</p>
+      {sub && <p className="text-xs text-indigo-300 mt-1.5">{sub}</p>}
+    </div>
+  );
+  const styles={
+    green:{border:'border-l-4 border-green-400',icon:'bg-green-50 text-green-600'},
+    red:  {border:'border-l-4 border-red-400',  icon:'bg-red-50 text-red-600'},
+    blue: {border:'border-l-4 border-blue-400', icon:'bg-blue-50 text-blue-600'},
+    indigo:{border:'border-l-4 border-indigo-400',icon:'bg-indigo-50 text-indigo-600'},
+  };
+  const s=styles[cor]||styles.indigo;
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+    <div className={'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 '+s.border}>
       <div className="flex items-start justify-between mb-3">
         <p className="text-sm text-gray-500 font-medium">{titulo}</p>
-        <div className={'p-2 rounded-lg '+(bg[cor]||bg.indigo)}><Icon size={18}/></div>
+        <div className={'p-2 rounded-xl '+s.icon}><Icon size={17}/></div>
       </div>
-      <p className="text-2xl font-bold text-gray-800">{fmt(valor)}</p>
+      <p className="text-2xl font-bold text-gray-800 tracking-tight">{fmt(valor)}</p>
       {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
     </div>
   );
@@ -111,11 +127,11 @@ function AuthScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-2.5 bg-indigo-600 rounded-xl"><Wallet size={22} className="text-white"/></div>
-          <div><h1 className="text-xl font-bold text-gray-800">Controle Financeiro</h1><p className="text-xs text-gray-400">Gestão pessoal inteligente</p></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-indigo-950 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8">
+        <div className="flex flex-col items-center gap-3 mb-8 text-center">
+          <div className="p-3.5 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl shadow-lg shadow-indigo-200"><Wallet size={26} className="text-white"/></div>
+          <div><h1 className="text-2xl font-bold text-gray-900">Controle Financeiro</h1><p className="text-sm text-gray-400 mt-0.5">Gestão pessoal inteligente</p></div>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Campo label="E-mail"><input type="email" value={email} onChange={e=>setEmail(e.target.value)} className={inp} placeholder="seu@email.com" required/></Campo>
@@ -225,32 +241,33 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100 flex">
+    <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <aside className="w-52 bg-white border-r border-gray-200 flex flex-col fixed h-screen z-40 shrink-0">
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-indigo-600 rounded-xl shrink-0"><Wallet size={17} className="text-white"/></div>
-            <div><p className="text-sm font-bold text-gray-800 leading-tight">Controle</p><p className="text-xs text-gray-400 leading-tight">Financeiro</p></div>
+      <aside className="w-56 bg-slate-900 flex flex-col fixed h-screen z-40 shrink-0">
+        <div className="px-5 py-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-500 rounded-xl shrink-0 shadow-lg shadow-indigo-900/50"><Wallet size={18} className="text-white"/></div>
+            <div><p className="text-sm font-bold text-white leading-tight">Controle</p><p className="text-xs text-slate-400 leading-tight">Financeiro</p></div>
           </div>
         </div>
-        <nav className="flex-1 p-3 flex flex-col gap-0.5 overflow-y-auto">
+        <nav className="flex-1 px-3 flex flex-col gap-0.5 overflow-y-auto">
           {tabs.map(t=>(
             <button key={t.id} onClick={()=>setAba(t.id)}
-              className={'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full text-left transition-colors '+(aba===t.id?'bg-indigo-600 text-white':'text-gray-500 hover:bg-gray-50 hover:text-gray-800')}>
+              className={'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full text-left transition-all '+(aba===t.id?'bg-indigo-600 text-white shadow-lg shadow-indigo-900/40':'text-slate-400 hover:bg-white/5 hover:text-white')}>
               <t.icon size={16} className="shrink-0"/>{t.label}
             </button>
           ))}
         </nav>
-        <div className="p-3 border-t border-gray-100">
-          <div className="flex items-center gap-2 px-1">
-            <p className="text-xs text-gray-400 truncate flex-1">{session.user.email}</p>
-            <button onClick={()=>supabase.auth.signOut()} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 shrink-0" title="Sair"><LogOut size={14}/></button>
+        <div className="px-4 py-4 border-t border-white/5">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">{session.user.email[0].toUpperCase()}</div>
+            <p className="text-xs text-slate-400 truncate flex-1">{session.user.email}</p>
+            <button onClick={()=>supabase.auth.signOut()} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white shrink-0 transition-colors" title="Sair"><LogOut size={14}/></button>
           </div>
         </div>
       </aside>
       {/* Content */}
-      <main className="flex-1 ml-52 p-6 min-h-screen">
+      <main className="flex-1 ml-56 p-7 min-h-screen">
         <div className="max-w-5xl mx-auto">
           {aba==='dashboard'    && <Dashboard transactions={transactions} cartoes={cartoes} metas={metas}/>}
           {aba==='receitas'     && <Receitas transactions={transactions} getContasFlat={getContasFlat} onAdd={addTx} onUpdate={updateTx} onDelete={deleteTx}/>}
@@ -283,9 +300,9 @@ function Dashboard({transactions,cartoes,metas}) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div><h1 className="text-2xl font-bold text-gray-800">Dashboard</h1><p className="text-gray-500 text-sm">{getMesLabel(mes)} — visão geral</p></div>
+      <div className="mb-2"><h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1><p className="text-gray-400 text-sm mt-0.5">{getMesLabel(mes)} — visão geral do mês</p></div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <CardResumo titulo="Saldo do Mês" valor={saldo} icon={Wallet} cor={saldo>=0?'indigo':'red'}/>
+        <CardResumo titulo="Saldo do Mês" valor={saldo} icon={Wallet} cor={saldo>=0?'indigo':'red'} destaque/>
         <CardResumo titulo="Receitas" valor={receitas} icon={TrendingUp} cor="green"/>
         <CardResumo titulo="Despesas" valor={despesas} icon={TrendingDown} cor="red"/>
         <CardResumo titulo="Cartões Usados" valor={totalCartoes} icon={CreditCard} cor="blue"/>
@@ -293,13 +310,15 @@ function Dashboard({transactions,cartoes,metas}) {
       {alertas.length>0&&<div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col gap-2"><div className="flex items-center gap-2 font-semibold text-amber-700"><AlertTriangle size={18}/>Alertas</div>{alertas.map((a,i)=><p key={i} className="text-sm text-amber-600 ml-6">{a}</p>)}</div>}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-700 mb-4">Receitas vs Despesas (6 meses)</h3>
+          <h3 className="font-semibold text-gray-800 mb-1">Receitas vs Despesas</h3>
+          <p className="text-xs text-gray-400 mb-4">Últimos 6 meses</p>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={ultimos6} barGap={4}><CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/><XAxis dataKey="mes" tick={{fontSize:12}}/><YAxis tick={{fontSize:11}} tickFormatter={v=>'R$'+(v/1000).toFixed(0)+'k'}/><Tooltip formatter={v=>fmt(v)}/><Legend/><Bar dataKey="Receitas" fill="#22c55e" radius={[4,4,0,0]}/><Bar dataKey="Despesas" fill="#ef4444" radius={[4,4,0,0]}/></BarChart>
+            <BarChart data={ultimos6} barGap={4} barCategoryGap="30%"><CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/><XAxis dataKey="mes" tick={{fontSize:11,fill:'#94a3b8'}} axisLine={false} tickLine={false}/><YAxis tick={{fontSize:11,fill:'#94a3b8'}} tickFormatter={v=>v===0?'0':'R$'+(v/1000).toFixed(0)+'k'} axisLine={false} tickLine={false}/><Tooltip formatter={v=>fmt(v)} contentStyle={{borderRadius:'12px',border:'none',boxShadow:'0 4px 24px rgba(0,0,0,0.08)'}}/><Legend iconType="circle" iconSize={8}/><Bar dataKey="Receitas" fill="#22c55e" radius={[6,6,0,0]}/><Bar dataKey="Despesas" fill="#f43f5e" radius={[6,6,0,0]}/></BarChart>
           </ResponsiveContainer>
         </div>
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-700 mb-4">Despesas por Categoria</h3>
+          <h3 className="font-semibold text-gray-800 mb-1">Despesas por Categoria</h3>
+          <p className="text-xs text-gray-400 mb-4">Mês atual</p>
           {pizzaData.length>0?(
             <ResponsiveContainer width="100%" height={220}><PieChart><Pie data={pizzaData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({name,percent})=>name+' '+(percent*100).toFixed(0)+'%'} labelLine={false}>{pizzaData.map((_,i)=><Cell key={i} fill={CORES[i%CORES.length]}/>)}</Pie><Tooltip formatter={v=>fmt(v)}/></PieChart></ResponsiveContainer>
           ):<div className="h-[220px] flex items-center justify-center text-gray-400 text-sm">Sem despesas no mês</div>}
