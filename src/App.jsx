@@ -244,7 +244,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <aside className={'bg-slate-900 flex flex-col fixed h-screen z-40 shrink-0 transition-all duration-300 '+(sidebarOpen?'w-56':'w-16')}>
+      <aside className={'bg-slate-900 flex flex-col shrink-0 sticky top-0 h-screen overflow-y-auto transition-all duration-300 '+(sidebarOpen?'w-56':'w-16')}>
         {/* Header */}
         <div className={'flex items-center py-5 px-3 '+(sidebarOpen?'gap-3 justify-between':'justify-center')}>
           {sidebarOpen&&(
@@ -291,7 +291,7 @@ export default function App() {
         </div>
       </aside>
       {/* Content */}
-      <main className={'flex-1 p-7 min-h-screen transition-all duration-300 '+(sidebarOpen?'ml-56':'ml-16')}>
+      <main className="flex-1 p-7 min-h-screen overflow-x-hidden">
         <div className="max-w-5xl mx-auto">
           {aba==='dashboard'    && <Dashboard transactions={transactions} cartoes={cartoes} metas={metas}/>}
           {aba==='receitas'     && <Receitas transactions={transactions} getContasFlat={getContasFlat} onAdd={addTx} onUpdate={updateTx} onDelete={deleteTx}/>}
