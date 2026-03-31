@@ -16,7 +16,7 @@ const today = () => new Date().toISOString().split('T')[0];
 const mesAtual = () => new Date().toISOString().slice(0,7);
 const uid = () => String(Date.now()) + String(Math.floor(Math.random()*10000));
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-function getMes(offset) { const d=new Date(); d.setMonth(d.getMonth()+(offset||0)); return d.toISOString().slice(0,7); }
+function getMes(offset) { const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()+(offset||0)); return d.toISOString().slice(0,7); }
 function getMesLabel(m) { if(!m)return''; const[ano,mes]=m.split('-'); return MESES[parseInt(mes)-1]+'/'+ano.slice(2); }
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
@@ -333,19 +333,35 @@ function Dashboard({transactions,cartoes,metas}) {
       </div>
       {alertas.length>0&&<div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col gap-2"><div className="flex items-center gap-2 font-semibold text-amber-700"><AlertTriangle size={18}/>Alertas</div>{alertas.map((a,i)=><p key={i} className="text-sm text-amber-600 ml-6">{a}</p>)}</div>}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h3 className="font-semibold text-gray-800 mb-1">Receitas vs Despesas</h3>
-          <p className="text-xs text-gray-400 mb-4">Últimos 6 meses</p>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={ultimos6} barGap={4} barCategoryGap="30%"><CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/><XAxis dataKey="mes" tick={{fontSize:11,fill:'#94a3b8'}} axisLine={false} tickLine={false}/><YAxis tick={{fontSize:11,fill:'#94a3b8'}} tickFormatter={v=>v===0?'0':'R$'+(v/1000).toFixed(0)+'k'} axisLine={false} tickLine={false}/><Tooltip formatter={v=>fmt(v)} contentStyle={{borderRadius:'12px',border:'none',boxShadow:'0 4px 24px rgba(0,0,0,0.08)'}}/><Legend iconType="circle" iconSize={8}/><Bar dataKey="Receitas" fill="#22c55e" radius={[6,6,0,0]}/><Bar dataKey="Despesas" fill="#f43f5e" radius={[6,6,0,0]}/></BarChart>
+          <p className="text-xs text-gray-400 mb-5">Últimos 6 meses</p>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={ultimos6} barGap={6} barCategoryGap="35%" margin={{top:4,right:8,left:0,bottom:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
+              <XAxis dataKey="mes" tick={{fontSize:12,fill:'#94a3b8'}} axisLine={false} tickLine={false} interval={0}/>
+              <YAxis tick={{fontSize:11,fill:'#94a3b8'}} tickFormatter={v=>'R$'+(v/1000).toFixed(0)+'k'} axisLine={false} tickLine={false} width={48}/>
+              <Tooltip formatter={v=>fmt(v)} contentStyle={{borderRadius:'12px',border:'none',boxShadow:'0 4px 24px rgba(0,0,0,0.10)',padding:'10px 14px'}}/>
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{paddingTop:'16px'}}/>
+              <Bar dataKey="Receitas" fill="#22c55e" radius={[6,6,0,0]}/>
+              <Bar dataKey="Despesas" fill="#f43f5e" radius={[6,6,0,0]}/>
+            </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h3 className="font-semibold text-gray-800 mb-1">Despesas por Categoria</h3>
-          <p className="text-xs text-gray-400 mb-4">Mês atual</p>
+          <p className="text-xs text-gray-400 mb-5">Mês atual</p>
           {pizzaData.length>0?(
-            <ResponsiveContainer width="100%" height={220}><PieChart><Pie data={pizzaData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({name,percent})=>name+' '+(percent*100).toFixed(0)+'%'} labelLine={false}>{pizzaData.map((_,i)=><Cell key={i} fill={CORES[i%CORES.length]}/>)}</Pie><Tooltip formatter={v=>fmt(v)}/></PieChart></ResponsiveContainer>
-          ):<div className="h-[220px] flex items-center justify-center text-gray-400 text-sm">Sem despesas no mês</div>}
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                <Pie data={pizzaData} cx="50%" cy="46%" outerRadius={95} innerRadius={40} dataKey="value" paddingAngle={3}
+                  label={({name,percent})=>name+' '+(percent*100).toFixed(0)+'%'} labelLine={{stroke:'#cbd5e1',strokeWidth:1}}>
+                  {pizzaData.map((_,i)=><Cell key={i} fill={CORES[i%CORES.length]}/>)}
+                </Pie>
+                <Tooltip formatter={v=>fmt(v)} contentStyle={{borderRadius:'12px',border:'none',boxShadow:'0 4px 24px rgba(0,0,0,0.10)',padding:'10px 14px'}}/>
+              </PieChart>
+            </ResponsiveContainer>
+          ):<div className="h-[260px] flex flex-col items-center justify-center gap-2 text-gray-300"><FileText size={32}/><span className="text-sm">Sem despesas no mês</span></div>}
         </div>
       </div>
       {(metas.gastoMensal>0||metas.limiteCartao>0)&&(
