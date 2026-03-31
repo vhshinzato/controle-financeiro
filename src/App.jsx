@@ -225,26 +225,41 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between pt-3 pb-1">
-            <div className="flex items-center gap-2"><div className="p-2 bg-indigo-600 rounded-xl"><Wallet size={20} className="text-white"/></div><span className="text-lg font-bold text-gray-800">Controle Financeiro</span></div>
-            <div className="flex items-center gap-2"><span className="hidden sm:block text-xs text-gray-400">{session.user.email}</span><button onClick={()=>supabase.auth.signOut()} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500" title="Sair"><LogOut size={16}/></button></div>
+    <div className="min-h-screen bg-slate-100 flex">
+      {/* Sidebar */}
+      <aside className="w-52 bg-white border-r border-gray-200 flex flex-col fixed h-screen z-40 shrink-0">
+        <div className="p-4 border-b border-gray-100">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-indigo-600 rounded-xl shrink-0"><Wallet size={17} className="text-white"/></div>
+            <div><p className="text-sm font-bold text-gray-800 leading-tight">Controle</p><p className="text-xs text-gray-400 leading-tight">Financeiro</p></div>
           </div>
-          <nav className="flex gap-1 overflow-x-auto pb-2">
-            {tabs.map(t=><button key={t.id} onClick={()=>setAba(t.id)} className={'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors '+(aba===t.id?'bg-indigo-600 text-white':'text-gray-500 hover:bg-gray-100 hover:text-gray-700')}><t.icon size={15}/>{t.label}</button>)}
-          </nav>
         </div>
-      </header>
-      <main className="max-w-7xl mx-auto w-full px-4 py-6">
-        {aba==='dashboard'    && <Dashboard transactions={transactions} cartoes={cartoes} metas={metas}/>}
-        {aba==='receitas'     && <Receitas transactions={transactions} getContasFlat={getContasFlat} onAdd={addTx} onUpdate={updateTx} onDelete={deleteTx}/>}
-        {aba==='despesas'     && <Despesas transactions={transactions} cartoes={cartoes} getContasFlat={getContasFlat} onAddTx={addTx} onUpdateTx={updateTx} onDeleteTx={deleteTx} onUpdateCartao={updateCartao}/>}
-        {aba==='planejamento' && <Planejamento despesasFuturas={despesasFuturas} transactions={transactions} onAdd={addDF} onUpdate={updateDF} onDelete={deleteDF}/>}
-        {aba==='cartoes'      && <Cartoes cartoes={cartoes} transactions={transactions} bancos={bancos} onAddCartao={addCartao} onUpdateCartao={updateCartao} onDeleteCartao={deleteCartao} onAddTx={addTx} onVincular={vincularCartao} onDesvincular={desvincularCartao}/>}
-        {aba==='bancos'       && <Bancos bancos={bancos} transactions={transactions} onAddBanco={addBanco} onDeleteBanco={deleteBanco} onAddConta={addConta} onDeleteConta={deleteConta}/>}
-        {aba==='config'       && <Configuracoes metas={metas} onSave={saveMetas} userId={userId}/>}
+        <nav className="flex-1 p-3 flex flex-col gap-0.5 overflow-y-auto">
+          {tabs.map(t=>(
+            <button key={t.id} onClick={()=>setAba(t.id)}
+              className={'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full text-left transition-colors '+(aba===t.id?'bg-indigo-600 text-white':'text-gray-500 hover:bg-gray-50 hover:text-gray-800')}>
+              <t.icon size={16} className="shrink-0"/>{t.label}
+            </button>
+          ))}
+        </nav>
+        <div className="p-3 border-t border-gray-100">
+          <div className="flex items-center gap-2 px-1">
+            <p className="text-xs text-gray-400 truncate flex-1">{session.user.email}</p>
+            <button onClick={()=>supabase.auth.signOut()} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 shrink-0" title="Sair"><LogOut size={14}/></button>
+          </div>
+        </div>
+      </aside>
+      {/* Content */}
+      <main className="flex-1 ml-52 p-6 min-h-screen">
+        <div className="max-w-5xl mx-auto">
+          {aba==='dashboard'    && <Dashboard transactions={transactions} cartoes={cartoes} metas={metas}/>}
+          {aba==='receitas'     && <Receitas transactions={transactions} getContasFlat={getContasFlat} onAdd={addTx} onUpdate={updateTx} onDelete={deleteTx}/>}
+          {aba==='despesas'     && <Despesas transactions={transactions} cartoes={cartoes} getContasFlat={getContasFlat} onAddTx={addTx} onUpdateTx={updateTx} onDeleteTx={deleteTx} onUpdateCartao={updateCartao}/>}
+          {aba==='planejamento' && <Planejamento despesasFuturas={despesasFuturas} transactions={transactions} onAdd={addDF} onUpdate={updateDF} onDelete={deleteDF}/>}
+          {aba==='cartoes'      && <Cartoes cartoes={cartoes} transactions={transactions} bancos={bancos} onAddCartao={addCartao} onUpdateCartao={updateCartao} onDeleteCartao={deleteCartao} onAddTx={addTx} onVincular={vincularCartao} onDesvincular={desvincularCartao}/>}
+          {aba==='bancos'       && <Bancos bancos={bancos} transactions={transactions} onAddBanco={addBanco} onDeleteBanco={deleteBanco} onAddConta={addConta} onDeleteConta={deleteConta}/>}
+          {aba==='config'       && <Configuracoes metas={metas} onSave={saveMetas} userId={userId}/>}
+        </div>
       </main>
     </div>
   );
