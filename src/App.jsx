@@ -3,7 +3,7 @@ import {
   Wallet, TrendingUp, TrendingDown, CreditCard, AlertTriangle,
   Plus, Filter, Target, Settings, Home, Trash2, Edit,
   ArrowUpCircle, ArrowDownCircle, CalendarDays, CheckCircle,
-  Building2, FileText, X, ChevronDown, ChevronUp, LogOut, Loader2
+  Building2, FileText, X, ChevronDown, ChevronUp, LogOut, Loader2, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from './lib/supabase';
@@ -157,6 +157,7 @@ export default function App() {
   const [session,setSession]=useState(null);
   const [loading,setLoading]=useState(true);
   const [aba,setAba]=useState('dashboard');
+  const [sidebarOpen,setSidebarOpen]=useState(true);
   const [transactions,setTransactions]=useState([]);
   const [cartoes,setCartoes]=useState([]);
   const [bancos,setBancos]=useState([]);
@@ -243,31 +244,54 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <aside className="w-56 bg-slate-900 flex flex-col fixed h-screen z-40 shrink-0">
-        <div className="px-5 py-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-500 rounded-xl shrink-0 shadow-lg shadow-indigo-900/50"><Wallet size={18} className="text-white"/></div>
-            <div><p className="text-sm font-bold text-white leading-tight">Controle</p><p className="text-xs text-slate-400 leading-tight">Financeiro</p></div>
-          </div>
+      <aside className={'bg-slate-900 flex flex-col fixed h-screen z-40 shrink-0 transition-all duration-300 '+(sidebarOpen?'w-56':'w-16')}>
+        {/* Header */}
+        <div className={'flex items-center py-5 px-3 '+(sidebarOpen?'gap-3 justify-between':'justify-center')}>
+          {sidebarOpen&&(
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2 bg-indigo-500 rounded-xl shrink-0 shadow-lg shadow-indigo-900/50"><Wallet size={17} className="text-white"/></div>
+              <div className="min-w-0"><p className="text-sm font-bold text-white leading-tight truncate">Controle</p><p className="text-xs text-slate-400 leading-tight">Financeiro</p></div>
+            </div>
+          )}
+          <button onClick={()=>setSidebarOpen(o=>!o)} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors shrink-0" title={sidebarOpen?'Recolher':'Expandir'}>
+            {sidebarOpen?<PanelLeftClose size={17}/>:<PanelLeftOpen size={17}/>}
+          </button>
         </div>
-        <nav className="flex-1 px-3 flex flex-col gap-0.5 overflow-y-auto">
+        {/* Nav */}
+        <nav className="flex-1 px-2 flex flex-col gap-0.5 overflow-y-auto">
           {tabs.map(t=>(
-            <button key={t.id} onClick={()=>setAba(t.id)}
-              className={'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full text-left transition-all '+(aba===t.id?'bg-indigo-600 text-white shadow-lg shadow-indigo-900/40':'text-slate-400 hover:bg-white/5 hover:text-white')}>
-              <t.icon size={16} className="shrink-0"/>{t.label}
-            </button>
+            <div key={t.id} className="relative group">
+              <button onClick={()=>setAba(t.id)}
+                className={'flex items-center gap-3 py-2.5 rounded-xl text-sm font-medium w-full transition-all '+(sidebarOpen?'px-3':'px-0 justify-center')+(aba===t.id?' bg-indigo-600 text-white shadow-lg shadow-indigo-900/40':' text-slate-400 hover:bg-white/5 hover:text-white')}>
+                <t.icon size={16} className="shrink-0"/>
+                {sidebarOpen&&<span>{t.label}</span>}
+              </button>
+              {!sidebarOpen&&(
+                <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-slate-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-xl z-50 border border-white/10">
+                  {t.label}
+                </span>
+              )}
+            </div>
           ))}
         </nav>
-        <div className="px-4 py-4 border-t border-white/5">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">{session.user.email[0].toUpperCase()}</div>
-            <p className="text-xs text-slate-400 truncate flex-1">{session.user.email}</p>
-            <button onClick={()=>supabase.auth.signOut()} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white shrink-0 transition-colors" title="Sair"><LogOut size={14}/></button>
-          </div>
+        {/* Footer */}
+        <div className={'border-t border-white/5 py-3 px-2 '+(sidebarOpen?'':'flex justify-center')}>
+          {sidebarOpen?(
+            <div className="flex items-center gap-2 px-1">
+              <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">{session.user.email[0].toUpperCase()}</div>
+              <p className="text-xs text-slate-400 truncate flex-1">{session.user.email}</p>
+              <button onClick={()=>supabase.auth.signOut()} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white shrink-0 transition-colors" title="Sair"><LogOut size={14}/></button>
+            </div>
+          ):(
+            <div className="relative group">
+              <button onClick={()=>supabase.auth.signOut()} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white transition-colors" title="Sair"><LogOut size={14}/></button>
+              <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-slate-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-xl z-50 border border-white/10">Sair</span>
+            </div>
+          )}
         </div>
       </aside>
       {/* Content */}
-      <main className="flex-1 ml-56 p-7 min-h-screen">
+      <main className={'flex-1 p-7 min-h-screen transition-all duration-300 '+(sidebarOpen?'ml-56':'ml-16')}>
         <div className="max-w-5xl mx-auto">
           {aba==='dashboard'    && <Dashboard transactions={transactions} cartoes={cartoes} metas={metas}/>}
           {aba==='receitas'     && <Receitas transactions={transactions} getContasFlat={getContasFlat} onAdd={addTx} onUpdate={updateTx} onDelete={deleteTx}/>}
