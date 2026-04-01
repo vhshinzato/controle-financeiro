@@ -348,6 +348,15 @@ function Dashboard({transactions,cartoes,metas}) {
   const saldo=receitas-despesas;
   const totalCartoes=cartoes.reduce((s,c)=>s+c.usado,0);
   const ultimos6=Array.from({length:6},(_,i)=>{const m=getMes(i-5);const tx=transactions.filter(t=>t.mes===m);return{mes:getMesLabel(m),Receitas:tx.filter(t=>t.tipo==='Receita').reduce((s,t)=>s+t.valor,0),Despesas:tx.filter(t=>t.tipo!=='Receita').reduce((s,t)=>s+t.valor,0)};});
+  // Gráfico anual — todos os anos com dados
+  const anosSet=new Set(transactions.map(t=>t.mes?.slice(0,4)).filter(Boolean));
+  const anoAtual=new Date().getFullYear().toString();
+  anosSet.add(anoAtual);
+  const anosData=[...anosSet].sort().map(ano=>({
+    ano,
+    Receitas:transactions.filter(t=>t.tipo==='Receita'&&t.mes?.startsWith(ano)).reduce((s,t)=>s+t.valor,0),
+    Despesas:transactions.filter(t=>t.tipo!=='Receita'&&t.mes?.startsWith(ano)).reduce((s,t)=>s+t.valor,0),
+  }));
   const catMap={};txMes.filter(t=>t.tipo!=='Receita').forEach(t=>{catMap[t.categoria]=(catMap[t.categoria]||0)+t.valor;});
   const pizzaData=Object.entries(catMap).map(([name,value])=>({name,value}));
   const alertas=[];
@@ -396,6 +405,23 @@ function Dashboard({transactions,cartoes,metas}) {
           ):<div className="h-[260px] flex flex-col items-center justify-center gap-2 text-slate-600"><FileText size={32}/><span className="text-sm">Sem despesas no mês</span></div>}
         </div>
       </div>
+      {anosData.length>0&&(
+        <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700" style={{padding:'24px'}}>
+          <h3 className="font-semibold text-white" style={{marginBottom:'4px'}}>Receitas vs Despesas — Histórico Anual</h3>
+          <p className="text-xs text-slate-400" style={{marginBottom:'20px'}}>Todos os anos com movimentação</p>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={anosData} barGap={6} barCategoryGap="40%" margin={{top:4,right:8,left:0,bottom:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false}/>
+              <XAxis dataKey="ano" tick={{fontSize:13,fill:'#64748b'}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fontSize:11,fill:'#64748b'}} tickFormatter={v=>'R$'+(v/1000).toFixed(0)+'k'} axisLine={false} tickLine={false} width={52}/>
+              <Tooltip formatter={v=>fmt(v)} contentStyle={{borderRadius:'12px',border:'1px solid #334155',background:'#1e293b',color:'#f1f5f9',boxShadow:'0 4px 24px rgba(0,0,0,0.40)',padding:'10px 14px'}}/>
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{paddingTop:'16px',color:'#94a3b8'}}/>
+              <Bar dataKey="Receitas" fill="#22c55e" radius={[6,6,0,0]}/>
+              <Bar dataKey="Despesas" fill="#f43f5e" radius={[6,6,0,0]}/>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
       {(metas.gastoMensal>0||metas.limiteCartao>0)&&(
         <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700" style={{padding:'20px 24px'}}>
           <h3 className="font-semibold text-slate-200 flex items-center gap-2" style={{marginBottom:'16px'}}><Target size={16}/>Metas do Mês</h3>
@@ -434,7 +460,8 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
   const [pagina,setPagina]=useState(0);
   const [form,setForm]=useState({categoria:'',valor:'',data:today(),obs:'',contaId:null});
   const contas=getContasFlat();
-  const mesesOpts=Array.from({length:27},(_,i)=>getMes(i-24));
+  const mesesComDados=Array.from(new Set(transactions.filter(t=>t.tipo==='Receita').map(t=>t.mes))).sort().reverse();
+  const mesesOpts=[...new Set([mesAtual(),...mesesComDados])].sort().reverse();
   let lista=transactions.filter(t=>t.tipo==='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
   if(filtroCategoria)lista=lista.filter(t=>t.categoria===filtroCategoria);
   const total=lista.reduce((s,t)=>s+t.valor,0);
@@ -517,7 +544,8 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
   const [pagina,setPagina]=useState(0);
   const [form,setForm]=useState({tipo:'Despesa Variável',categoria:'',valor:'',data:today(),pagamento:'',obs:'',contaId:null,cartaoId:null});
   const contas=getContasFlat();
-  const mesesOpts=Array.from({length:27},(_,i)=>getMes(i-24));
+  const mesesComDadosD=Array.from(new Set(transactions.filter(t=>t.tipo!=='Receita').map(t=>t.mes))).sort().reverse();
+  const mesesOpts=[...new Set([mesAtual(),...mesesComDadosD])].sort().reverse();
   const tiposDespesa=['Despesa Fixa','Despesa Variável','Cartão de Crédito','Investimentos'];
   let lista=transactions.filter(t=>t.tipo!=='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
   if(filtroTipo)lista=lista.filter(t=>t.tipo===filtroTipo);
