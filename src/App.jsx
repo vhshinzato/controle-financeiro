@@ -4,7 +4,7 @@ import {
   Plus, Filter, Target, Settings, Home, Trash2, Edit,
   ArrowUpCircle, ArrowDownCircle, CalendarDays, CheckCircle,
   Building2, FileText, X, ChevronDown, ChevronUp, LogOut, Loader2, PanelLeftClose, PanelLeftOpen,
-  Upload, AlertCircle
+  Upload, AlertCircle, Link2, RefreshCw
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from './lib/supabase';
@@ -170,6 +170,7 @@ export default function App() {
   const [bancos,setBancos]=useState([]);
   const [despesasFuturas,setDespesasFuturas]=useState([]);
   const [metas,setMetas]=useState({gastoMensal:0,limiteCartao:0});
+  const [pluggyItems,setPluggyItems]=useState([]);
 
   useEffect(()=>{
     supabase.auth.getSession().then(({data:{session}})=>{
@@ -179,20 +180,21 @@ export default function App() {
     });
     const {data:{subscription}}=supabase.auth.onAuthStateChange((_,session)=>{
       setSession(session);
-      if(!session){setLoading(false);setTransactions([]);setCartoes([]);setBancos([]);setDespesasFuturas([]);setMetas({gastoMensal:0,limiteCartao:0});}
+      if(!session){setLoading(false);setTransactions([]);setCartoes([]);setBancos([]);setDespesasFuturas([]);setMetas({gastoMensal:0,limiteCartao:0});setPluggyItems([]);}
     });
     return ()=>subscription.unsubscribe();
   },[]);
 
   async function loadAll(userId) {
     setLoading(true);
-    const [txR,cR,bR,coR,dfR,mR]=await Promise.all([
+    const [txR,cR,bR,coR,dfR,mR,piR]=await Promise.all([
       supabase.from('transactions').select('*').eq('user_id',userId).order('data',{ascending:false}),
       supabase.from('cartoes').select('*').eq('user_id',userId).order('created_at'),
       supabase.from('bancos').select('*').eq('user_id',userId).order('created_at'),
       supabase.from('contas').select('*').eq('user_id',userId).order('created_at'),
       supabase.from('despesas_futuras').select('*').eq('user_id',userId).order('created_at'),
       supabase.from('metas').select('*').eq('user_id',userId).maybeSingle(),
+      supabase.from('pluggy_items').select('*').eq('user_id',userId).order('created_at'),
     ]);
     setTransactions((txR.data||[]).map(mapTx));
     setCartoes((cR.data||[]).map(mapCartao));
@@ -200,6 +202,7 @@ export default function App() {
     setBancos((bR.data||[]).map(b=>({...mapBanco(b),contas:contas.filter(c=>c.bancoId===b.id)})));
     setDespesasFuturas((dfR.data||[]).map(mapDF));
     if(mR.data) setMetas({gastoMensal:money(mR.data.gasto_mensal),limiteCartao:money(mR.data.limite_cartao)});
+    setPluggyItems(piR.data||[]);
     setLoading(false);
   }
 
@@ -237,6 +240,8 @@ export default function App() {
   async function saveMetas(m){setMetas(m);await supabase.from('metas').upsert({user_id:userId,gasto_mensal:m.gastoMensal,limite_cartao:m.limiteCartao});}
 
   function getContasFlat(){return bancos.flatMap(b=>(b.contas||[]).map(c=>({...c,bancoId:b.id,bancoNome:b.nome,bancoCor:b.cor})));}
+  async function onPluggyConnect(itemId,connectorName){const row={id:uid(),user_id:userId,item_id:itemId,connector_name:connectorName,created_at:new Date().toISOString()};setPluggyItems(p=>[...p,row]);await supabase.from('pluggy_items').insert({id:row.id,user_id:userId,item_id:itemId,connector_name:connectorName});}
+  async function onPluggyDisconnect(id){if(!confirm('Desconectar este banco?'))return;setPluggyItems(p=>p.filter(x=>x.id!==id));await supabase.from('pluggy_items').delete().eq('id',id);}
 
   if(!session) return <AuthScreen/>;
   if(loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="flex flex-col items-center gap-3 text-slate-400"><Loader2 size={32} className="animate-spin text-indigo-400"/><p className="text-sm">Carregando seus dados...</p></div></div>;
@@ -245,6 +250,7 @@ export default function App() {
     {id:'dashboard',label:'Dashboard',icon:Home},{id:'receitas',label:'Receitas',icon:ArrowUpCircle},
     {id:'despesas',label:'Despesas',icon:ArrowDownCircle},{id:'planejamento',label:'Planejamento',icon:CalendarDays},
     {id:'cartoes',label:'Cartões',icon:CreditCard},{id:'bancos',label:'Bancos',icon:Building2},
+    {id:'conexoes',label:'Conexões',icon:Link2},
     {id:'config',label:'Config',icon:Settings},
   ];
 
@@ -332,6 +338,7 @@ export default function App() {
           {aba==='planejamento' && <Planejamento despesasFuturas={despesasFuturas} transactions={transactions} onAdd={addDF} onUpdate={updateDF} onDelete={deleteDF}/>}
           {aba==='cartoes'      && <Cartoes cartoes={cartoes} transactions={transactions} bancos={bancos} onAddCartao={addCartao} onUpdateCartao={updateCartao} onDeleteCartao={deleteCartao} onAddTx={addTx} onVincular={vincularCartao} onDesvincular={desvincularCartao}/>}
           {aba==='bancos'       && <Bancos bancos={bancos} transactions={transactions} onAddBanco={addBanco} onDeleteBanco={deleteBanco} onAddConta={addConta} onDeleteConta={deleteConta}/>}
+          {aba==='conexoes'     && <ConexoesBancarias pluggyItems={pluggyItems} onConnect={onPluggyConnect} onDisconnect={onPluggyDisconnect} getContasFlat={getContasFlat} onAdd={addTx}/>}
           {aba==='config'       && <Configuracoes metas={metas} onSave={saveMetas} userId={userId}/>}
         </div>
       </main>
@@ -429,6 +436,185 @@ function Dashboard({transactions,cartoes,metas}) {
           <div className="flex flex-col gap-3">
             {metas.gastoMensal>0&&<div><div className="flex justify-between text-sm mb-1"><span className="text-slate-400">Gasto Mensal</span><span className={despesas>metas.gastoMensal?'text-red-400 font-semibold':'text-slate-400'}>{fmt(despesas)} / {fmt(metas.gastoMensal)}</span></div><div className="bg-slate-700 rounded-full h-2"><div className={'h-2 rounded-full '+(despesas>metas.gastoMensal?'bg-red-500':'bg-indigo-500')} style={{width:Math.min((despesas/metas.gastoMensal)*100,100)+'%'}}/></div></div>}
             {metas.limiteCartao>0&&<div><div className="flex justify-between text-sm mb-1"><span className="text-slate-400">Uso de Cartões</span><span className={totalCartoes>metas.limiteCartao?'text-red-400 font-semibold':'text-slate-400'}>{fmt(totalCartoes)} / {fmt(metas.limiteCartao)}</span></div><div className="bg-slate-700 rounded-full h-2"><div className={'h-2 rounded-full '+(totalCartoes>metas.limiteCartao?'bg-red-500':'bg-blue-500')} style={{width:Math.min((totalCartoes/metas.limiteCartao)*100,100)+'%'}}/></div></div>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── CONEXÕES BANCÁRIAS (PLUGGY) ──────────────────────────────────────────────
+
+function loadPluggyScript() {
+  return new Promise((resolve,reject)=>{
+    if(window.PluggyConnect){resolve();return;}
+    if(document.getElementById('pluggy-sdk')){
+      const t=setInterval(()=>{if(window.PluggyConnect){clearInterval(t);resolve();}},100);
+      return;
+    }
+    const s=document.createElement('script');
+    s.id='pluggy-sdk';
+    s.src='https://cdn.pluggy.ai/pluggy-connect/v2.3.0/pluggy-connect.js';
+    s.onload=resolve;s.onerror=reject;
+    document.head.appendChild(s);
+  });
+}
+
+function ConexoesBancarias({pluggyItems,onConnect,onDisconnect,getContasFlat,onAdd}) {
+  const [loading,setLoading]=useState(false);
+  const [erro,setErro]=useState('');
+  const [syncing,setSyncing]=useState(null);
+  const [syncModal,setSyncModal]=useState(null);
+  const [selecionadas,setSelecionadas]=useState({});
+  const [contaId,setContaId]=useState('');
+  const contas=getContasFlat();
+
+  async function conectar() {
+    setLoading(true);setErro('');
+    try {
+      const {data:{session}}=await supabase.auth.getSession();
+      const res=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pluggy-connect-token`,{
+        headers:{Authorization:`Bearer ${session.access_token}`}
+      });
+      const json=await res.json();
+      if(json.error)throw new Error(json.error);
+      await loadPluggyScript();
+      const widget=new window.PluggyConnect({
+        connectToken:json.accessToken,
+        onSuccess:({item})=>{onConnect(item.id,item.connector?.name||'Banco');setLoading(false);},
+        onError:(e)=>{setErro('Erro ao conectar: '+String(e));setLoading(false);},
+        onClose:()=>setLoading(false),
+      });
+      widget.init();
+    } catch(e){setErro(e.message);setLoading(false);}
+  }
+
+  async function sincronizar(item) {
+    setSyncing(item.id);setErro('');
+    try {
+      const {data:{session}}=await supabase.auth.getSession();
+      const from=getMes(-1)+'-01';
+      const to=today();
+      const res=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pluggy-sync`,{
+        method:'POST',
+        headers:{Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json'},
+        body:JSON.stringify({itemId:item.item_id,from,to})
+      });
+      const json=await res.json();
+      if(json.error)throw new Error(json.error);
+      const txs=json.transactions||[];
+      if(txs.length===0){alert('Nenhuma transação nova nos últimos 60 dias.');setSyncing(null);return;}
+      const sel={};txs.forEach((_,i)=>{sel[i]=true;});
+      setSelecionadas(sel);
+      setSyncModal({transactions:txs,item});
+    } catch(e){setErro(e.message);}
+    setSyncing(null);
+  }
+
+  async function importarSelecionadas() {
+    const conta=contas.find(c=>c.id===contaId);
+    const itens=syncModal.transactions.filter((_,i)=>selecionadas[i]);
+    for(const t of itens){
+      await onAdd({
+        id:uid(),tipo:t.type==='receita'?'Receita':'Despesa Variável',
+        categoria:t.category||t.description?.slice(0,30)||'Importado',
+        valor:t.amount,data:t.date,
+        pagamento:t.type==='receita'?'Recebimento':'Débito',
+        obs:t.description,mes:t.date?.slice(0,7),
+        bancoId:conta?.bancoId||null,contaId:contaId||null,cartaoId:null
+      });
+    }
+    setSyncModal(null);setSelecionadas({});setContaId('');
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Conexões Bancárias</h1>
+          <p className="text-slate-400 text-sm mt-0.5">Bancos conectados via Open Finance</p>
+        </div>
+        <button onClick={conectar} disabled={loading} className={btnP+' flex items-center gap-2'}>
+          {loading?<Loader2 size={16} className="animate-spin"/>:<Plus size={16}/>}
+          Conectar Banco
+        </button>
+      </div>
+      {erro&&<div style={{display:'flex',alignItems:'center',gap:'8px',background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:'10px',padding:'12px 16px',color:'#f87171'}}><AlertCircle size={16}/>{erro}</div>}
+      {pluggyItems.length===0?(
+        <div className="bg-slate-800 rounded-2xl border border-slate-700 flex flex-col items-center justify-center py-16 gap-4">
+          <div style={{padding:'16px',background:'rgba(99,102,241,0.1)',borderRadius:'16px',color:'#6366f1'}}><Link2 size={32}/></div>
+          <div className="text-center">
+            <p className="text-slate-300 font-semibold">Nenhum banco conectado</p>
+            <p className="text-slate-500 text-sm mt-1">Conecte seu banco para importar transações automaticamente</p>
+          </div>
+          <button onClick={conectar} disabled={loading} className={btnP+' flex items-center gap-2'}>
+            {loading?<Loader2 size={15} className="animate-spin"/>:<Link2 size={15}/>}
+            Conectar meu primeiro banco
+          </button>
+        </div>
+      ):(
+        <div className="flex flex-col gap-3">
+          {pluggyItems.map(item=>(
+            <div key={item.id} className="bg-slate-800 rounded-2xl border border-slate-700" style={{padding:'20px 24px'}}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div style={{padding:'10px',background:'rgba(99,102,241,0.1)',borderRadius:'10px',color:'#6366f1'}}><Building2 size={18}/></div>
+                  <div>
+                    <p className="text-slate-100 font-semibold">{item.connector_name||'Banco conectado'}</p>
+                    <p className="text-slate-500 text-xs mt-0.5">Conectado em {new Date(item.created_at).toLocaleDateString('pt-BR')}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={()=>sincronizar(item)} disabled={syncing===item.id} className={btnS+' flex items-center gap-2'}>
+                    {syncing===item.id?<Loader2 size={14} className="animate-spin"/>:<RefreshCw size={14}/>}
+                    Sincronizar
+                  </button>
+                  <button onClick={()=>onDisconnect(item.id)} className="p-2 hover:bg-red-900/40 rounded-lg text-slate-500 hover:text-red-400 transition-colors"><Trash2 size={14}/></button>
+                </div>
+              </div>
+            </div>
+          ))}
+          <button onClick={conectar} disabled={loading} style={{fontSize:'14px',color:'#6366f1',background:'transparent',border:'none',cursor:'pointer',display:'flex',alignItems:'center',gap:'6px',alignSelf:'flex-start',marginTop:'4px'}}>
+            <Plus size={14}/>Adicionar outro banco
+          </button>
+        </div>
+      )}
+      {syncModal&&(
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:50,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+          <div style={{background:'#1e293b',borderRadius:'14px',width:'100%',maxWidth:'640px',maxHeight:'90vh',display:'flex',flexDirection:'column',border:'1px solid #334155',boxShadow:'0 25px 50px rgba(0,0,0,0.5)'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 24px 16px',borderBottom:'1px solid #334155'}}>
+              <h2 style={{fontSize:'17px',fontWeight:700,color:'#f1f5f9'}}>Importar Transações — {syncModal.item.connector_name}</h2>
+              <button onClick={()=>setSyncModal(null)} style={{padding:'6px',background:'transparent',border:'none',cursor:'pointer',color:'#64748b',borderRadius:'8px'}}><X size={18}/></button>
+            </div>
+            <div style={{overflowY:'auto',padding:'20px 24px',flex:1,display:'flex',flexDirection:'column',gap:'16px'}}>
+              <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+                <label style={{fontSize:'13px',fontWeight:500,color:'#94a3b8'}}>Vincular à conta bancária</label>
+                <select value={contaId} onChange={e=>setContaId(e.target.value)} className={inp} style={{width:'100%'}}>
+                  <option value="">Nenhuma conta</option>
+                  {contas.map(c=><option key={c.id} value={c.id}>{c.bancoNome} – {c.nome}</option>)}
+                </select>
+              </div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <p style={{fontSize:'13px',color:'#64748b'}}>{Object.values(selecionadas).filter(Boolean).length} de {syncModal.transactions.length} selecionadas</p>
+                <button onClick={()=>{const all={};syncModal.transactions.forEach((_,i)=>{all[i]=!Object.values(selecionadas).every(Boolean);});setSelecionadas(all);}} style={{fontSize:'12px',color:'#6366f1',background:'transparent',border:'none',cursor:'pointer'}}>
+                  {Object.values(selecionadas).every(Boolean)?'Desmarcar todas':'Selecionar todas'}
+                </button>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:'4px',maxHeight:'320px',overflowY:'auto'}}>
+                {syncModal.transactions.map((t,i)=>(
+                  <label key={i} style={{display:'flex',alignItems:'center',gap:'12px',padding:'10px 12px',borderRadius:'8px',cursor:'pointer',background:selecionadas[i]?'rgba(99,102,241,0.08)':'transparent',border:'1px solid',borderColor:selecionadas[i]?'rgba(99,102,241,0.3)':'transparent',transition:'all 0.1s'}}>
+                    <input type="checkbox" checked={!!selecionadas[i]} onChange={e=>setSelecionadas(s=>({...s,[i]:e.target.checked}))} style={{accentColor:'#6366f1',width:'15px',height:'15px'}}/>
+                    <span style={{fontSize:'12px',color:'#64748b',whiteSpace:'nowrap',width:'80px',flexShrink:0}}>{t.date?.split('-').reverse().join('/')}</span>
+                    <span style={{fontSize:'13px',color:'#e2e8f0',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t.description}</span>
+                    <span style={{fontSize:'13px',fontWeight:600,whiteSpace:'nowrap',color:t.type==='receita'?'#4ade80':'#f87171'}}>{t.type==='receita'?'+':'-'} {fmt(t.amount)}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div style={{padding:'16px 24px',borderTop:'1px solid #334155',display:'flex',gap:'12px',background:'#0f172a',borderRadius:'0 0 14px 14px'}}>
+              <button onClick={()=>setSyncModal(null)} className={btnS} style={{flex:1}}>Cancelar</button>
+              <button onClick={importarSelecionadas} className={btnP} style={{flex:1}}>Importar {Object.values(selecionadas).filter(Boolean).length} transações</button>
+            </div>
           </div>
         </div>
       )}
