@@ -54,23 +54,23 @@ const dfToDB = (df,uid) => ({id:df.id,user_id:uid,categoria:df.categoria,valor:d
 
 function Modal({titulo,onClose,children,footer}) {
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-800 rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col border border-slate-700">
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-700">
-          <h2 className="text-lg font-bold text-white">{titulo}</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"><X size={18}/></button>
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:50,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+      <div style={{background:'#1e293b',borderRadius:'14px',boxShadow:'0 25px 50px rgba(0,0,0,0.5)',width:'100%',maxWidth:'440px',maxHeight:'90vh',display:'flex',flexDirection:'column',border:'1px solid #334155'}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 24px 16px',borderBottom:'1px solid #334155'}}>
+          <h2 style={{fontSize:'17px',fontWeight:700,color:'#f1f5f9',margin:0}}>{titulo}</h2>
+          <button onClick={onClose} style={{padding:'6px',background:'transparent',border:'none',cursor:'pointer',color:'#64748b',borderRadius:'8px',display:'flex',alignItems:'center'}} onMouseOver={e=>e.currentTarget.style.background='#334155'} onMouseOut={e=>e.currentTarget.style.background='transparent'}><X size={18}/></button>
         </div>
-        <div className="overflow-y-auto px-6 py-4 flex flex-col gap-4 flex-1">{children}</div>
-        {footer && <div className="px-6 py-4 border-t border-slate-700 flex gap-3 bg-slate-900 rounded-b-xl">{footer}</div>}
+        <div style={{overflowY:'auto',padding:'20px 24px',display:'flex',flexDirection:'column',gap:'16px',flex:1}}>{children}</div>
+        {footer && <div style={{padding:'16px 24px',borderTop:'1px solid #334155',display:'flex',gap:'12px',background:'#0f172a',borderRadius:'0 0 14px 14px'}}>{footer}</div>}
       </div>
     </div>
   );
 }
 function Campo({label,children,required}) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="block text-sm font-medium text-slate-300">
-        {label}{required&&<span className="text-red-400 ml-0.5">*</span>}
+    <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+      <label style={{fontSize:'13px',fontWeight:500,color:'#94a3b8'}}>
+        {label}{required&&<span style={{color:'#f87171',marginLeft:'2px'}}>*</span>}
       </label>
       {children}
     </div>
