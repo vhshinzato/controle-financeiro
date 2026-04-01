@@ -455,13 +455,16 @@ function Paginacao({total,pagina,setPagina}){
 function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
   const [modal,setModal]=useState(false);
   const [editando,setEditando]=useState(null);
-  const [filtroMes,setFiltroMes]=useState(mesAtual());
+  const anoAtualR=new Date().getFullYear();
+  const mesAtualR=String(new Date().getMonth()+1).padStart(2,'0');
+  const [filtroAno,setFiltroAno]=useState(String(anoAtualR));
+  const [filtroMesNum,setFiltroMesNum]=useState(mesAtualR);
   const [filtroCategoria,setFiltroCategoria]=useState('');
   const [pagina,setPagina]=useState(0);
   const [form,setForm]=useState({categoria:'',valor:'',data:today(),obs:'',contaId:null});
   const contas=getContasFlat();
-  const mesesComDados=Array.from(new Set(transactions.filter(t=>t.tipo==='Receita').map(t=>t.mes))).sort().reverse();
-  const mesesOpts=[...new Set([mesAtual(),...mesesComDados])].sort().reverse();
+  const filtroMes=filtroAno+'-'+filtroMesNum;
+  const anosR=[...new Set([String(anoAtualR),...transactions.filter(t=>t.tipo==='Receita').map(t=>t.mes?.slice(0,4)).filter(Boolean)])].sort().reverse();
   let lista=transactions.filter(t=>t.tipo==='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
   if(filtroCategoria)lista=lista.filter(t=>t.categoria===filtroCategoria);
   const total=lista.reduce((s,t)=>s+t.valor,0);
@@ -486,7 +489,8 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
         <div className="flex items-center gap-3 p-4 border-b border-slate-700">
           <Filter size={15} className="text-slate-500 shrink-0"/>
-          <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
+          <select value={filtroMesNum} onChange={e=>{setFiltroMesNum(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}>{MESES.map((m,i)=><option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}</select>
+          <select value={filtroAno} onChange={e=>{setFiltroAno(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}>{anosR.map(a=><option key={a}>{a}</option>)}</select>
           <select value={filtroCategoria} onChange={e=>{setFiltroCategoria(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}><option value="">Todas as categorias</option>{CATEGORIAS['Receita'].map(c=><option key={c}>{c}</option>)}</select>
         </div>
         <table className="w-full">
@@ -539,13 +543,16 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
 function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDeleteTx,onUpdateCartao}) {
   const [modal,setModal]=useState(false);
   const [editando,setEditando]=useState(null);
-  const [filtroMes,setFiltroMes]=useState(mesAtual());
+  const anoAtualD=new Date().getFullYear();
+  const mesAtualD=String(new Date().getMonth()+1).padStart(2,'0');
+  const [filtroAno,setFiltroAno]=useState(String(anoAtualD));
+  const [filtroMesNum,setFiltroMesNum]=useState(mesAtualD);
   const [filtroTipo,setFiltroTipo]=useState('');
   const [pagina,setPagina]=useState(0);
   const [form,setForm]=useState({tipo:'Despesa Variável',categoria:'',valor:'',data:today(),pagamento:'',obs:'',contaId:null,cartaoId:null});
   const contas=getContasFlat();
-  const mesesComDadosD=Array.from(new Set(transactions.filter(t=>t.tipo!=='Receita').map(t=>t.mes))).sort().reverse();
-  const mesesOpts=[...new Set([mesAtual(),...mesesComDadosD])].sort().reverse();
+  const filtroMes=filtroAno+'-'+filtroMesNum;
+  const anosD=[...new Set([String(anoAtualD),...transactions.filter(t=>t.tipo!=='Receita').map(t=>t.mes?.slice(0,4)).filter(Boolean)])].sort().reverse();
   const tiposDespesa=['Despesa Fixa','Despesa Variável','Cartão de Crédito','Investimentos'];
   let lista=transactions.filter(t=>t.tipo!=='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
   if(filtroTipo)lista=lista.filter(t=>t.tipo===filtroTipo);
@@ -578,7 +585,8 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
         <div className="flex items-center gap-3 p-4 border-b border-slate-700 flex-wrap">
           <Filter size={15} className="text-slate-500 shrink-0"/>
-          <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
+          <select value={filtroMesNum} onChange={e=>{setFiltroMesNum(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}>{MESES.map((m,i)=><option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}</select>
+          <select value={filtroAno} onChange={e=>{setFiltroAno(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}>{anosD.map(a=><option key={a}>{a}</option>)}</select>
           <select value={filtroTipo} onChange={e=>{setFiltroTipo(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}><option value="">Todos os tipos</option>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select>
         </div>
         <table className="w-full">
