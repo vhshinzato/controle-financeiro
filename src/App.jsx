@@ -75,7 +75,7 @@ function Campo({label,children,required}) {
     </div>
   );
 }
-const inp = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-colors placeholder:text-gray-300";
+const inp = "w-full border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors placeholder:text-gray-400";
 const btnP = "bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl text-sm font-semibold transition-colors";
 const btnS = "bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-3 rounded-xl text-sm font-semibold transition-colors";
 
