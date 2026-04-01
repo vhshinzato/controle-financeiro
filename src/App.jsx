@@ -454,7 +454,7 @@ function loadPluggyScript() {
     }
     const s=document.createElement('script');
     s.id='pluggy-sdk';
-    s.src='https://cdn.pluggy.ai/pluggy-connect/v2.3.0/pluggy-connect.js';
+    s.src='https://cdn.pluggy.ai/pluggy-connect/v2/pluggy-connect.js';
     s.onload=resolve;s.onerror=reject;
     document.head.appendChild(s);
   });
@@ -472,11 +472,8 @@ function ConexoesBancarias({pluggyItems,onConnect,onDisconnect,getContasFlat,onA
   async function conectar() {
     setLoading(true);setErro('');
     try {
-      const {data:{session}}=await supabase.auth.getSession();
-      const res=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pluggy-connect-token`,{
-        headers:{Authorization:`Bearer ${session.access_token}`}
-      });
-      const json=await res.json();
+      const {data:json,error}=await supabase.functions.invoke('pluggy-connect-token');
+      if(error)throw new Error(error.message);
       if(json.error)throw new Error(json.error);
       await loadPluggyScript();
       const widget=new window.PluggyConnect({
@@ -492,15 +489,10 @@ function ConexoesBancarias({pluggyItems,onConnect,onDisconnect,getContasFlat,onA
   async function sincronizar(item) {
     setSyncing(item.id);setErro('');
     try {
-      const {data:{session}}=await supabase.auth.getSession();
       const from=getMes(-1)+'-01';
       const to=today();
-      const res=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pluggy-sync`,{
-        method:'POST',
-        headers:{Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json'},
-        body:JSON.stringify({itemId:item.item_id,from,to})
-      });
-      const json=await res.json();
+      const {data:json,error}=await supabase.functions.invoke('pluggy-sync',{body:{itemId:item.item_id,from,to}});
+      if(error)throw new Error(error.message);
       if(json.error)throw new Error(json.error);
       const txs=json.transactions||[];
       if(txs.length===0){alert('Nenhuma transação nova nos últimos 60 dias.');setSyncing(null);return;}
