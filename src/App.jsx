@@ -82,30 +82,27 @@ const btnS = "cf-btn-secondary";
 
 function CardResumo({titulo,valor,icon:Icon,cor,sub,destaque}) {
   if(destaque) return (
-    <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl p-5 shadow-lg shadow-indigo-900/40 text-white col-span-2 lg:col-span-1">
-      <div className="flex items-start justify-between mb-4">
+    <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl shadow-lg text-white col-span-2 lg:col-span-1" style={{padding:'20px 24px'}}>
+      <div className="flex items-start justify-between" style={{marginBottom:'16px'}}>
         <p className="text-sm text-indigo-200 font-medium">{titulo}</p>
-        <div className="p-2 bg-white/20 rounded-xl"><Icon size={18}/></div>
+        <div style={{padding:'8px',background:'rgba(255,255,255,0.2)',borderRadius:'10px'}}><Icon size={18}/></div>
       </div>
       <p className="text-3xl font-bold tracking-tight">{fmt(valor)}</p>
-      {sub && <p className="text-xs text-indigo-300 mt-1.5">{sub}</p>}
+      {sub && <p className="text-xs text-indigo-300" style={{marginTop:'6px'}}>{sub}</p>}
     </div>
   );
-  const styles={
-    green:{icon:'bg-green-500/20 text-green-400',val:'text-green-400'},
-    red:  {icon:'bg-red-500/20 text-red-400',    val:'text-red-400'},
-    blue: {icon:'bg-blue-500/20 text-blue-400',  val:'text-blue-400'},
-    indigo:{icon:'bg-indigo-500/20 text-indigo-400',val:'text-indigo-400'},
-  };
-  const s=styles[cor]||styles.indigo;
+  const iconColors={green:'rgba(34,197,94,0.15)',red:'rgba(239,68,68,0.15)',blue:'rgba(59,130,246,0.15)',indigo:'rgba(99,102,241,0.15)'};
+  const textColors={green:'#4ade80',red:'#f87171',blue:'#60a5fa',indigo:'#818cf8'};
+  const ic=iconColors[cor]||iconColors.indigo;
+  const tc=textColors[cor]||textColors.indigo;
   return (
-    <div className="bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-700">
-      <div className="flex items-start justify-between mb-3">
+    <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700" style={{padding:'20px 24px'}}>
+      <div className="flex items-start justify-between" style={{marginBottom:'12px'}}>
         <p className="text-sm text-slate-400 font-medium">{titulo}</p>
-        <div className={'p-2 rounded-xl '+s.icon}><Icon size={17}/></div>
+        <div style={{padding:'8px',background:ic,borderRadius:'10px',color:tc}}><Icon size={17}/></div>
       </div>
-      <p className={'text-2xl font-bold tracking-tight '+s.val}>{fmt(valor)}</p>
-      {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
+      <p className="text-2xl font-bold tracking-tight" style={{color:tc}}>{fmt(valor)}</p>
+      {sub && <p className="text-xs text-slate-500" style={{marginTop:'4px'}}>{sub}</p>}
     </div>
   );
 }
@@ -341,9 +338,9 @@ function Dashboard({transactions,cartoes,metas}) {
       </div>
       {alertas.length>0&&<div className="bg-amber-900/30 border border-amber-700/50 rounded-2xl p-4 flex flex-col gap-2"><div className="flex items-center gap-2 font-semibold text-amber-400"><AlertTriangle size={18}/>Alertas</div>{alertas.map((a,i)=><p key={i} className="text-sm text-amber-300 ml-6">{a}</p>)}</div>}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
-          <h3 className="font-semibold text-white mb-1">Receitas vs Despesas</h3>
-          <p className="text-xs text-slate-400 mb-5">Últimos 6 meses</p>
+        <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700" style={{padding:'24px'}}>
+          <h3 className="font-semibold text-white" style={{marginBottom:'4px'}}>Receitas vs Despesas</h3>
+          <p className="text-xs text-slate-400" style={{marginBottom:'20px'}}>Últimos 6 meses</p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={ultimos6} barGap={6} barCategoryGap="35%" margin={{top:4,right:8,left:0,bottom:0}}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false}/>
@@ -356,9 +353,9 @@ function Dashboard({transactions,cartoes,metas}) {
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
-          <h3 className="font-semibold text-white mb-1">Despesas por Categoria</h3>
-          <p className="text-xs text-slate-400 mb-5">Mês atual</p>
+        <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700" style={{padding:'24px'}}>
+          <h3 className="font-semibold text-white" style={{marginBottom:'4px'}}>Despesas por Categoria</h3>
+          <p className="text-xs text-slate-400" style={{marginBottom:'20px'}}>Mês atual</p>
           {pizzaData.length>0?(
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
@@ -373,8 +370,8 @@ function Dashboard({transactions,cartoes,metas}) {
         </div>
       </div>
       {(metas.gastoMensal>0||metas.limiteCartao>0)&&(
-        <div className="bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-700">
-          <h3 className="font-semibold text-slate-200 mb-4 flex items-center gap-2"><Target size={16}/>Metas do Mês</h3>
+        <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700" style={{padding:'20px 24px'}}>
+          <h3 className="font-semibold text-slate-200 flex items-center gap-2" style={{marginBottom:'16px'}}><Target size={16}/>Metas do Mês</h3>
           <div className="flex flex-col gap-3">
             {metas.gastoMensal>0&&<div><div className="flex justify-between text-sm mb-1"><span className="text-slate-400">Gasto Mensal</span><span className={despesas>metas.gastoMensal?'text-red-400 font-semibold':'text-slate-400'}>{fmt(despesas)} / {fmt(metas.gastoMensal)}</span></div><div className="bg-slate-700 rounded-full h-2"><div className={'h-2 rounded-full '+(despesas>metas.gastoMensal?'bg-red-500':'bg-indigo-500')} style={{width:Math.min((despesas/metas.gastoMensal)*100,100)+'%'}}/></div></div>}
             {metas.limiteCartao>0&&<div><div className="flex justify-between text-sm mb-1"><span className="text-slate-400">Uso de Cartões</span><span className={totalCartoes>metas.limiteCartao?'text-red-400 font-semibold':'text-slate-400'}>{fmt(totalCartoes)} / {fmt(metas.limiteCartao)}</span></div><div className="bg-slate-700 rounded-full h-2"><div className={'h-2 rounded-full '+(totalCartoes>metas.limiteCartao?'bg-red-500':'bg-blue-500')} style={{width:Math.min((totalCartoes/metas.limiteCartao)*100,100)+'%'}}/></div></div>}
