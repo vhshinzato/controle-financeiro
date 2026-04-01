@@ -249,7 +249,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 flex" style={{overflowX:'hidden'}}>
       {/* Sidebar */}
-      <aside style={{background:'#0f172a',display:'flex',flexDirection:'column',flexShrink:0,position:'sticky',top:0,height:'100vh',overflowY:'auto',transition:'width 0.3s',width:sidebarOpen?'220px':'68px',borderRight:'1px solid #1e293b'}}>
+      <aside style={{background:'#0f172a',display:'flex',flexDirection:'column',flexShrink:0,position:'sticky',top:0,height:'100vh',overflow:'visible',transition:'width 0.3s',width:sidebarOpen?'220px':'68px',borderRight:'1px solid #1e293b'}}>
         {/* Header */}
         <div style={{display:'flex',alignItems:'center',padding:'24px 16px 20px',justifyContent:sidebarOpen?'space-between':'center',gap:'12px'}}>
           {sidebarOpen&&(
@@ -268,7 +268,7 @@ export default function App() {
           </button>
         </div>
         {/* Nav */}
-        <nav style={{flex:1,padding:'0 10px',display:'flex',flexDirection:'column',gap:'2px',overflowY:'auto'}}>
+        <nav style={{flex:1,padding:'0 10px',display:'flex',flexDirection:'column',gap:'2px',overflowY:'auto',overflowX:'visible'}}>
           {tabs.map(t=>{
             const active=aba===t.id;
             return(
