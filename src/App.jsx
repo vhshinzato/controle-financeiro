@@ -457,10 +457,10 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
         <button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Receita</button>
       </div>
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-        <div className="flex items-center gap-3 p-4 border-b border-slate-700 flex-wrap">
+        <div className="flex items-center gap-3 p-4 border-b border-slate-700">
           <Filter size={15} className="text-slate-500 shrink-0"/>
-          <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
-          <select value={filtroCategoria} onChange={e=>{setFiltroCategoria(e.target.value);setPagina(0);}} className={inp+' w-auto'}><option value="">Todas as categorias</option>{CATEGORIAS['Receita'].map(c=><option key={c}>{c}</option>)}</select>
+          <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
+          <select value={filtroCategoria} onChange={e=>{setFiltroCategoria(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}><option value="">Todas as categorias</option>{CATEGORIAS['Receita'].map(c=><option key={c}>{c}</option>)}</select>
         </div>
         <table className="w-full">
           <thead>
@@ -550,8 +550,8 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
         <div className="flex items-center gap-3 p-4 border-b border-slate-700 flex-wrap">
           <Filter size={15} className="text-slate-500 shrink-0"/>
-          <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
-          <select value={filtroTipo} onChange={e=>{setFiltroTipo(e.target.value);setPagina(0);}} className={inp+' w-auto'}><option value="">Todos os tipos</option>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select>
+          <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
+          <select value={filtroTipo} onChange={e=>{setFiltroTipo(e.target.value);setPagina(0);}} className={inp} style={{width:'auto'}}><option value="">Todos os tipos</option>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select>
         </div>
         <table className="w-full">
           <thead>
