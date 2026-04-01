@@ -52,15 +52,16 @@ const dfToDB = (df,uid) => ({id:df.id,user_id:uid,categoria:df.categoria,valor:d
 
 // ─── UI Atoms ────────────────────────────────────────────────────────────────
 
-function Modal({titulo,onClose,children}) {
+function Modal({titulo,onClose,children,footer}) {
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 pt-6 pb-2">
-          <h2 className="text-xl font-bold text-gray-900">{titulo}</h2>
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col border border-gray-200">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900">{titulo}</h2>
           <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"><X size={18}/></button>
         </div>
-        <div className="overflow-y-auto px-6 py-5 flex flex-col gap-4">{children}</div>
+        <div className="overflow-y-auto px-6 py-4 flex flex-col gap-4 flex-1">{children}</div>
+        {footer && <div className="px-6 py-4 border-t border-gray-100 flex gap-3 bg-gray-50 rounded-b-xl">{footer}</div>}
       </div>
     </div>
   );
@@ -419,13 +420,12 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
           </div>
         );})}
       </div>
-      {modal&&(<Modal titulo="💰 Nova Receita" onClose={()=>setModal(false)}>
+      {modal&&(<Modal titulo="💰 Nova Receita" onClose={()=>setModal(false)} footer={<><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></>}>
         <Campo label="Categoria"><select value={form.categoria} onChange={e=>setForm({...form,categoria:e.target.value})} className={inp}><option value="">Selecione...</option>{CATEGORIAS['Receita'].map(c=><option key={c}>{c}</option>)}</select></Campo>
         <Campo label="Valor (R$)"><input type="number" step="0.01" min="0" value={form.valor} onChange={e=>setForm({...form,valor:e.target.value})} className={inp} placeholder="0,00"/></Campo>
         <Campo label="Data"><input type="date" value={form.data} onChange={e=>setForm({...form,data:e.target.value})} className={inp}/></Campo>
         <Campo label="Conta Bancária *"><select value={form.contaId||''} onChange={e=>setForm({...form,contaId:e.target.value||null})} className={inp}><option value="">Selecione...</option>{contas.map(c=><option key={c.id} value={c.id}>{c.bancoNome} – {c.nome}</option>)}</select></Campo>
         <Campo label="Observações"><input type="text" value={form.obs} onChange={e=>setForm({...form,obs:e.target.value})} className={inp} placeholder="Opcional"/></Campo>
-        <div className="flex gap-3 pt-2"><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></div>
       </Modal>)}
     </div>
   );
@@ -476,7 +476,7 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
           </div>
         );})}
       </div>
-      {modal&&(<Modal titulo="💸 Nova Despesa" onClose={()=>setModal(false)}>
+      {modal&&(<Modal titulo="💸 Nova Despesa" onClose={()=>setModal(false)} footer={<><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></>}>
         <Campo label="Tipo"><select value={form.tipo} onChange={e=>setForm({...form,tipo:e.target.value,categoria:''})} className={inp}>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select></Campo>
         <Campo label="Categoria"><select value={form.categoria} onChange={e=>setForm({...form,categoria:e.target.value})} className={inp}><option value="">Selecione...</option>{(CATEGORIAS[form.tipo]||[]).map(c=><option key={c}>{c}</option>)}</select></Campo>
         <Campo label="Valor (R$)"><input type="number" step="0.01" min="0" value={form.valor} onChange={e=>setForm({...form,valor:e.target.value})} className={inp} placeholder="0,00"/></Campo>
@@ -485,7 +485,6 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
         {form.tipo==='Cartão de Crédito'&&<Campo label="Cartão"><select value={form.cartaoId||''} onChange={e=>setForm({...form,cartaoId:e.target.value||null})} className={inp}><option value="">Selecione...</option>{cartoes.map(c=><option key={c.id} value={c.id}>{c.nome} (disp: {fmt(c.limite-c.usado)})</option>)}</select></Campo>}
         <Campo label="Conta Bancária"><select value={form.contaId||''} onChange={e=>setForm({...form,contaId:e.target.value||null})} className={inp}><option value="">Nenhuma</option>{contas.map(c=><option key={c.id} value={c.id}>{c.bancoNome} – {c.nome}</option>)}</select></Campo>
         <Campo label="Observações"><input type="text" value={form.obs} onChange={e=>setForm({...form,obs:e.target.value})} className={inp} placeholder="Opcional"/></Campo>
-        <div className="flex gap-3 pt-2"><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></div>
       </Modal>)}
     </div>
   );
@@ -518,12 +517,11 @@ function Planejamento({despesasFuturas,transactions,onAdd,onUpdate,onDelete}) {
         );})}
       </div>
       {despesasFuturas.length>0&&<div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><h3 className="font-semibold text-gray-700 mb-4">Despesas Recorrentes</h3><div className="flex flex-col gap-2">{despesasFuturas.map(df=><div key={df.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"><div><p className="font-medium text-gray-700 text-sm">{df.categoria}</p><p className="text-xs text-gray-400">{df.tipo} · a partir de {getMesLabel(df.mes)}</p></div><div className="flex items-center gap-2"><span className="font-semibold text-red-600 text-sm">{fmt(df.valor)}/mês</span><button onClick={()=>abrir(df)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400"><Edit size={14}/></button><button onClick={()=>onDelete(df.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-400"><Trash2 size={14}/></button></div></div>)}</div></div>}
-      {modal&&(<Modal titulo="📅 Despesa Recorrente" onClose={()=>setModal(false)}>
+      {modal&&(<Modal titulo="📅 Despesa Recorrente" onClose={()=>setModal(false)} footer={<><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></>}>
         <Campo label="Categoria / Nome"><input type="text" value={form.categoria} onChange={e=>setForm({...form,categoria:e.target.value})} className={inp} placeholder="Ex: Aluguel, Academia..."/></Campo>
         <Campo label="Valor Mensal (R$)"><input type="number" step="0.01" min="0" value={form.valor} onChange={e=>setForm({...form,valor:e.target.value})} className={inp} placeholder="0,00"/></Campo>
         <Campo label="Tipo"><select value={form.tipo} onChange={e=>setForm({...form,tipo:e.target.value})} className={inp}><option>Despesa Fixa</option><option>Despesa Variável</option></select></Campo>
         <Campo label="A partir de"><select value={form.mes} onChange={e=>setForm({...form,mes:e.target.value})} className={inp}>{proximos6.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select></Campo>
-        <div className="flex gap-3 pt-2"><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></div>
       </Modal>)}
     </div>
   );
@@ -575,8 +573,8 @@ function Cartoes({cartoes,transactions,bancos,onAddCartao,onUpdateCartao,onDelet
           </div>
         );
       })}
-      {modalCartao&&<Modal titulo={editandoCartao?'Editar Cartão':'Novo Cartão'} onClose={()=>setModalCartao(false)}><Campo label="Nome"><input type="text" value={formCartao.nome} onChange={e=>setFormCartao({...formCartao,nome:e.target.value})} className={inp} placeholder="Ex: Nubank, Itaú..."/></Campo><Campo label="Limite (R$)"><input type="number" step="0.01" min="0" value={formCartao.limite} onChange={e=>setFormCartao({...formCartao,limite:e.target.value})} className={inp} placeholder="0,00"/></Campo><Campo label="Dia Fechamento"><input type="number" min="1" max="31" value={formCartao.dataFechamento} onChange={e=>setFormCartao({...formCartao,dataFechamento:e.target.value})} className={inp} placeholder="Ex: 25"/></Campo><Campo label="Dia Vencimento"><input type="number" min="1" max="31" value={formCartao.dataVencimento} onChange={e=>setFormCartao({...formCartao,dataVencimento:e.target.value})} className={inp} placeholder="Ex: 5"/></Campo><div className="flex gap-3 pt-2"><button onClick={()=>setModalCartao(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvarCartao} className={btnP+' flex-1'}>Salvar</button></div></Modal>}
-      {modalCompra&&<Modal titulo={'Lançar Compra — '+(cartoes.find(c=>c.id===modalCompra)?.nome||'')} onClose={()=>setModalCompra(null)}><Campo label="Categoria"><select value={formCompra.categoria} onChange={e=>setFormCompra({...formCompra,categoria:e.target.value})} className={inp}><option value="">Selecione...</option>{CATEGORIAS['Cartão de Crédito'].map(c=><option key={c}>{c}</option>)}</select></Campo><Campo label="Valor Total (R$)"><input type="number" step="0.01" min="0" value={formCompra.valor} onChange={e=>setFormCompra({...formCompra,valor:e.target.value})} className={inp} placeholder="0,00"/></Campo><Campo label="Data"><input type="date" value={formCompra.data} onChange={e=>setFormCompra({...formCompra,data:e.target.value})} className={inp}/></Campo><Campo label="Parcelas"><select value={formCompra.parcelas} onChange={e=>setFormCompra({...formCompra,parcelas:e.target.value})} className={inp}>{Array.from({length:12},(_,i)=>i+1).map(n=><option key={n} value={n}>{n}x{formCompra.valor?' de '+fmt(money(formCompra.valor)/n):''}</option>)}</select></Campo><Campo label="Observações"><input type="text" value={formCompra.obs} onChange={e=>setFormCompra({...formCompra,obs:e.target.value})} className={inp} placeholder="Opcional"/></Campo><div className="flex gap-3 pt-2"><button onClick={()=>setModalCompra(null)} className={btnS+' flex-1'}>Cancelar</button><button onClick={()=>salvarCompra(modalCompra)} className={btnP+' flex-1'}>Lançar</button></div></Modal>}
+      {modalCartao&&<Modal titulo={editandoCartao?'Editar Cartão':'Novo Cartão'} onClose={()=>setModalCartao(false)} footer={<><button onClick={()=>setModalCartao(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvarCartao} className={btnP+' flex-1'}>Salvar</button></>}><Campo label="Nome"><input type="text" value={formCartao.nome} onChange={e=>setFormCartao({...formCartao,nome:e.target.value})} className={inp} placeholder="Ex: Nubank, Itaú..."/></Campo><Campo label="Limite (R$)"><input type="number" step="0.01" min="0" value={formCartao.limite} onChange={e=>setFormCartao({...formCartao,limite:e.target.value})} className={inp} placeholder="0,00"/></Campo><Campo label="Dia Fechamento"><input type="number" min="1" max="31" value={formCartao.dataFechamento} onChange={e=>setFormCartao({...formCartao,dataFechamento:e.target.value})} className={inp} placeholder="Ex: 25"/></Campo><Campo label="Dia Vencimento"><input type="number" min="1" max="31" value={formCartao.dataVencimento} onChange={e=>setFormCartao({...formCartao,dataVencimento:e.target.value})} className={inp} placeholder="Ex: 5"/></Campo></Modal>}
+      {modalCompra&&<Modal titulo={'Lançar Compra — '+(cartoes.find(c=>c.id===modalCompra)?.nome||'')} onClose={()=>setModalCompra(null)} footer={<><button onClick={()=>setModalCompra(null)} className={btnS+' flex-1'}>Cancelar</button><button onClick={()=>salvarCompra(modalCompra)} className={btnP+' flex-1'}>Lançar</button></>}><Campo label="Categoria"><select value={formCompra.categoria} onChange={e=>setFormCompra({...formCompra,categoria:e.target.value})} className={inp}><option value="">Selecione...</option>{CATEGORIAS['Cartão de Crédito'].map(c=><option key={c}>{c}</option>)}</select></Campo><Campo label="Valor Total (R$)"><input type="number" step="0.01" min="0" value={formCompra.valor} onChange={e=>setFormCompra({...formCompra,valor:e.target.value})} className={inp} placeholder="0,00"/></Campo><Campo label="Data"><input type="date" value={formCompra.data} onChange={e=>setFormCompra({...formCompra,data:e.target.value})} className={inp}/></Campo><Campo label="Parcelas"><select value={formCompra.parcelas} onChange={e=>setFormCompra({...formCompra,parcelas:e.target.value})} className={inp}>{Array.from({length:12},(_,i)=>i+1).map(n=><option key={n} value={n}>{n}x{formCompra.valor?' de '+fmt(money(formCompra.valor)/n):''}</option>)}</select></Campo><Campo label="Observações"><input type="text" value={formCompra.obs} onChange={e=>setFormCompra({...formCompra,obs:e.target.value})} className={inp} placeholder="Opcional"/></Campo></Modal>}
       {vinculando&&<div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl"><h3 className="font-bold text-gray-800 mb-2">Confirmar vinculação</h3><p className="text-gray-600 text-sm mb-4">Vincular <strong>{cartoes.find(c=>c.id===vinculando.cartaoId)?.nome}</strong> ao banco <strong>{bancos.find(b=>b.id===vinculando.bancoId)?.nome}</strong>?</p><div className="flex gap-3"><button onClick={()=>setVinculando(null)} className={btnS+' flex-1'}>Cancelar</button><button onClick={()=>{onVincular(vinculando.cartaoId,vinculando.bancoId);setVinculando(null);}} className={btnP+' flex-1'}>Confirmar</button></div></div></div>}
     </div>
   );
@@ -627,8 +625,8 @@ function Bancos({bancos,transactions,onAddBanco,onDeleteBanco,onAddConta,onDelet
           </div>
         );
       })}
-      {modalBanco&&<Modal titulo="Novo Banco" onClose={()=>setModalBanco(false)}><Campo label="Nome do Banco"><input type="text" value={formBanco.nome} onChange={e=>setFormBanco({...formBanco,nome:e.target.value})} className={inp} placeholder="Ex: Nubank, Itaú..."/></Campo><Campo label="Cor"><div className="flex items-center gap-3"><input type="color" value={formBanco.cor} onChange={e=>setFormBanco({...formBanco,cor:e.target.value})} className="w-12 h-10 rounded-lg cursor-pointer border border-gray-200"/><span className="text-sm text-gray-500">{formBanco.cor}</span></div></Campo><div className="flex gap-3 pt-2"><button onClick={()=>setModalBanco(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={adicionarBanco} className={btnP+' flex-1'}>Adicionar</button></div></Modal>}
-      {modalConta&&<Modal titulo={'Nova Conta — '+(bancos.find(b=>b.id===modalConta)?.nome||'')} onClose={()=>setModalConta(null)}><Campo label="Tipo"><select value={formConta.tipo} onChange={e=>setFormConta({...formConta,tipo:e.target.value})} className={inp}>{TIPOS_CONTA.map(t=><option key={t.tipo} value={t.tipo}>{t.label}</option>)}</select></Campo>{formConta.tipo==='Personalizada'&&<Campo label="Nome da Conta"><input type="text" value={formConta.nome} onChange={e=>setFormConta({...formConta,nome:e.target.value})} className={inp} placeholder="Ex: Viagem, Reserva..."/></Campo>}<Campo label="Saldo Inicial (R$)"><input type="number" step="0.01" value={formConta.saldoInicial} onChange={e=>setFormConta({...formConta,saldoInicial:e.target.value})} className={inp} placeholder="0,00"/></Campo><div className="flex gap-3 pt-2"><button onClick={()=>setModalConta(null)} className={btnS+' flex-1'}>Cancelar</button><button onClick={()=>adicionarConta(modalConta)} className={btnP+' flex-1'}>Adicionar</button></div></Modal>}
+      {modalBanco&&<Modal titulo="Novo Banco" onClose={()=>setModalBanco(false)} footer={<><button onClick={()=>setModalBanco(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={adicionarBanco} className={btnP+' flex-1'}>Adicionar</button></>}><Campo label="Nome do Banco"><input type="text" value={formBanco.nome} onChange={e=>setFormBanco({...formBanco,nome:e.target.value})} className={inp} placeholder="Ex: Nubank, Itaú..."/></Campo><Campo label="Cor"><div className="flex items-center gap-3"><input type="color" value={formBanco.cor} onChange={e=>setFormBanco({...formBanco,cor:e.target.value})} className="w-12 h-10 rounded-lg cursor-pointer border border-gray-200"/><span className="text-sm text-gray-500">{formBanco.cor}</span></div></Campo></Modal>}
+      {modalConta&&<Modal titulo={'Nova Conta — '+(bancos.find(b=>b.id===modalConta)?.nome||'')} onClose={()=>setModalConta(null)} footer={<><button onClick={()=>setModalConta(null)} className={btnS+' flex-1'}>Cancelar</button><button onClick={()=>adicionarConta(modalConta)} className={btnP+' flex-1'}>Adicionar</button></>}><Campo label="Tipo"><select value={formConta.tipo} onChange={e=>setFormConta({...formConta,tipo:e.target.value})} className={inp}>{TIPOS_CONTA.map(t=><option key={t.tipo} value={t.tipo}>{t.label}</option>)}</select></Campo>{formConta.tipo==='Personalizada'&&<Campo label="Nome da Conta"><input type="text" value={formConta.nome} onChange={e=>setFormConta({...formConta,nome:e.target.value})} className={inp} placeholder="Ex: Viagem, Reserva..."/></Campo>}<Campo label="Saldo Inicial (R$)"><input type="number" step="0.01" value={formConta.saldoInicial} onChange={e=>setFormConta({...formConta,saldoInicial:e.target.value})} className={inp} placeholder="0,00"/></Campo></Modal>}
     </div>
   );
 }
