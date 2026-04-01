@@ -3,7 +3,8 @@ import {
   Wallet, TrendingUp, TrendingDown, CreditCard, AlertTriangle,
   Plus, Filter, Target, Settings, Home, Trash2, Edit,
   ArrowUpCircle, ArrowDownCircle, CalendarDays, CheckCircle,
-  Building2, FileText, X, ChevronDown, ChevronUp, LogOut, Loader2, PanelLeftClose, PanelLeftOpen
+  Building2, FileText, X, ChevronDown, ChevronUp, LogOut, Loader2, PanelLeftClose, PanelLeftOpen,
+  Upload, AlertCircle
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from './lib/supabase';
@@ -452,6 +453,114 @@ function Paginacao({total,pagina,setPagina}){
   );
 }
 
+// ─── IMPORTAR EXTRATO ─────────────────────────────────────────────────────────
+
+function ImportarExtrato({onAdd,getContasFlat,cartoes,defaultTipo}) {
+  const [aberto,setAberto]=useState(false);
+  const [loading,setLoading]=useState(false);
+  const [erro,setErro]=useState('');
+  const [transacoes,setTransacoes]=useState([]);
+  const [selecionadas,setSelecionadas]=useState({});
+  const [contaId,setContaId]=useState('');
+  const contas=getContasFlat();
+
+  async function handleFile(e) {
+    const file=e.target.files?.[0];
+    if(!file)return;
+    setLoading(true);setErro('');setTransacoes([]);setSelecionadas({});
+    try {
+      const fd=new FormData();
+      fd.append('file',file);
+      const {data:{session}}=await supabase.auth.getSession();
+      const res=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/importar-extrato`,{
+        method:'POST',
+        headers:{Authorization:`Bearer ${session.access_token}`},
+        body:fd
+      });
+      const json=await res.json();
+      if(json.error)throw new Error(json.error);
+      const txs=json.transacoes||[];
+      if(txs.length===0)throw new Error('Nenhuma transação encontrada no documento.');
+      setTransacoes(txs);
+      const sel={};txs.forEach((_,i)=>{sel[i]=true;});setSelecionadas(sel);
+    } catch(e){setErro(e.message);}
+    setLoading(false);
+    e.target.value='';
+  }
+
+  async function confirmar() {
+    const conta=contas.find(c=>c.id===contaId);
+    const itens=transacoes.filter((_,i)=>selecionadas[i]);
+    for(const t of itens){
+      await onAdd({
+        id:uid(),tipo:t.tipo==='receita'?'Receita':'Despesa Variável',
+        categoria:t.descricao?.slice(0,30)||'Importado',
+        valor:Math.abs(t.valor),data:t.data,
+        pagamento:t.tipo==='receita'?'Recebimento':'Importado',
+        obs:t.descricao,mes:t.data?.slice(0,7),
+        bancoId:conta?.bancoId||null,contaId:contaId||null,cartaoId:null
+      });
+    }
+    setAberto(false);setTransacoes([]);setSelecionadas({});setContaId('');
+  }
+
+  return (
+    <>
+      <label className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg text-sm font-medium text-slate-300 border border-slate-600 hover:bg-slate-700 transition-colors">
+        <Upload size={15}/> Importar Extrato
+        <input type="file" accept=".pdf,image/*" className="hidden" onChange={e=>{setAberto(true);handleFile(e);}}/>
+      </label>
+      {aberto&&(
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:50,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+          <div style={{background:'#1e293b',borderRadius:'14px',width:'100%',maxWidth:'640px',maxHeight:'90vh',display:'flex',flexDirection:'column',border:'1px solid #334155',boxShadow:'0 25px 50px rgba(0,0,0,0.5)'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 24px 16px',borderBottom:'1px solid #334155'}}>
+              <h2 style={{fontSize:'17px',fontWeight:700,color:'#f1f5f9'}}>Importar Extrato</h2>
+              <button onClick={()=>{setAberto(false);setTransacoes([]);setErro('');}} style={{padding:'6px',background:'transparent',border:'none',cursor:'pointer',color:'#64748b',borderRadius:'8px'}}><X size={18}/></button>
+            </div>
+            <div style={{overflowY:'auto',padding:'20px 24px',flex:1,display:'flex',flexDirection:'column',gap:'16px'}}>
+              {loading&&<div style={{display:'flex',alignItems:'center',gap:'12px',color:'#94a3b8',padding:'24px 0'}}><Loader2 size={20} className="animate-spin"/><span>Analisando documento com IA...</span></div>}
+              {erro&&<div style={{display:'flex',alignItems:'center',gap:'8px',background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:'10px',padding:'12px 16px',color:'#f87171'}}><AlertCircle size={16}/>{erro}</div>}
+              {transacoes.length>0&&(
+                <>
+                  <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+                    <label style={{fontSize:'13px',fontWeight:500,color:'#94a3b8'}}>Vincular à conta bancária</label>
+                    <select value={contaId} onChange={e=>setContaId(e.target.value)} className={inp} style={{width:'100%'}}>
+                      <option value="">Nenhuma conta</option>
+                      {contas.map(c=><option key={c.id} value={c.id}>{c.bancoNome} – {c.nome}</option>)}
+                    </select>
+                  </div>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                    <p style={{fontSize:'13px',color:'#64748b'}}>{Object.values(selecionadas).filter(Boolean).length} de {transacoes.length} selecionadas</p>
+                    <button onClick={()=>{const all={};transacoes.forEach((_,i)=>{all[i]=!Object.values(selecionadas).every(Boolean);});setSelecionadas(all);}} style={{fontSize:'12px',color:'#6366f1',background:'transparent',border:'none',cursor:'pointer'}}>
+                      {Object.values(selecionadas).every(Boolean)?'Desmarcar todas':'Selecionar todas'}
+                    </button>
+                  </div>
+                  <div style={{display:'flex',flexDirection:'column',gap:'4px',maxHeight:'320px',overflowY:'auto'}}>
+                    {transacoes.map((t,i)=>(
+                      <label key={i} style={{display:'flex',alignItems:'center',gap:'12px',padding:'10px 12px',borderRadius:'8px',cursor:'pointer',background:selecionadas[i]?'rgba(99,102,241,0.08)':'transparent',border:'1px solid',borderColor:selecionadas[i]?'rgba(99,102,241,0.3)':'transparent',transition:'all 0.1s'}}>
+                        <input type="checkbox" checked={!!selecionadas[i]} onChange={e=>setSelecionadas(s=>({...s,[i]:e.target.checked}))} style={{accentColor:'#6366f1',width:'15px',height:'15px'}}/>
+                        <span style={{fontSize:'12px',color:'#64748b',whiteSpace:'nowrap',width:'80px',flexShrink:0}}>{t.data?.split('-').reverse().join('/')}</span>
+                        <span style={{fontSize:'13px',color:'#e2e8f0',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t.descricao}</span>
+                        <span style={{fontSize:'13px',fontWeight:600,whiteSpace:'nowrap',color:t.tipo==='receita'?'#4ade80':'#f87171'}}>{t.tipo==='receita'?'+':'-'} {fmt(t.valor)}</span>
+                      </label>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            {transacoes.length>0&&(
+              <div style={{padding:'16px 24px',borderTop:'1px solid #334155',display:'flex',gap:'12px',background:'#0f172a',borderRadius:'0 0 14px 14px'}}>
+                <button onClick={()=>{setAberto(false);setTransacoes([]);}} className={btnS} style={{flex:1}}>Cancelar</button>
+                <button onClick={confirmar} className={btnP} style={{flex:1}}>Importar {Object.values(selecionadas).filter(Boolean).length} transações</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
   const [modal,setModal]=useState(false);
   const [editando,setEditando]=useState(null);
@@ -484,7 +593,10 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold text-white">Receitas</h1><p className="text-slate-400 text-sm mt-0.5">Total: <span className="font-semibold text-green-400">{fmt(total)}</span></p></div>
-        <button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Receita</button>
+        <div className="flex items-center gap-2">
+          <ImportarExtrato onAdd={onAdd} getContasFlat={getContasFlat} cartoes={[]} defaultTipo="receita"/>
+          <button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Receita</button>
+        </div>
       </div>
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
         <div className="flex items-center gap-3 p-4 border-b border-slate-700">
@@ -580,7 +692,10 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold text-white">Despesas</h1><p className="text-slate-400 text-sm mt-0.5">Total: <span className="font-semibold text-red-400">{fmt(total)}</span></p></div>
-        <button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Despesa</button>
+        <div className="flex items-center gap-2">
+          <ImportarExtrato onAdd={onAddTx} getContasFlat={getContasFlat} cartoes={cartoes} defaultTipo="despesa"/>
+          <button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Despesa</button>
+        </div>
       </div>
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
         <div className="flex items-center gap-3 p-4 border-b border-slate-700 flex-wrap">
