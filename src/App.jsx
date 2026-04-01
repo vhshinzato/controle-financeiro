@@ -430,11 +430,13 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
   const [modal,setModal]=useState(false);
   const [editando,setEditando]=useState(null);
   const [filtroMes,setFiltroMes]=useState(mesAtual());
+  const [filtroCategoria,setFiltroCategoria]=useState('');
   const [pagina,setPagina]=useState(0);
   const [form,setForm]=useState({categoria:'',valor:'',data:today(),obs:'',contaId:null});
   const contas=getContasFlat();
   const mesesOpts=Array.from({length:12},(_,i)=>getMes(i-6));
-  const lista=transactions.filter(t=>t.tipo==='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
+  let lista=transactions.filter(t=>t.tipo==='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
+  if(filtroCategoria)lista=lista.filter(t=>t.categoria===filtroCategoria);
   const total=lista.reduce((s,t)=>s+t.valor,0);
   const pagItems=lista.slice(pagina*PER_PAGE,(pagina+1)*PER_PAGE);
 
@@ -455,9 +457,10 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
         <button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Receita</button>
       </div>
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-        <div className="flex items-center gap-3 p-4 border-b border-slate-700">
-          <Filter size={15} className="text-slate-500"/>
+        <div className="flex items-center gap-3 p-4 border-b border-slate-700 flex-wrap">
+          <Filter size={15} className="text-slate-500 shrink-0"/>
           <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
+          <select value={filtroCategoria} onChange={e=>{setFiltroCategoria(e.target.value);setPagina(0);}} className={inp+' w-auto'}><option value="">Todas as categorias</option>{CATEGORIAS['Receita'].map(c=><option key={c}>{c}</option>)}</select>
         </div>
         <table className="w-full">
           <thead>
@@ -546,7 +549,7 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
       </div>
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
         <div className="flex items-center gap-3 p-4 border-b border-slate-700 flex-wrap">
-          <Filter size={15} className="text-slate-500"/>
+          <Filter size={15} className="text-slate-500 shrink-0"/>
           <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
           <select value={filtroTipo} onChange={e=>{setFiltroTipo(e.target.value);setPagina(0);}} className={inp+' w-auto'}><option value="">Todos os tipos</option>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select>
         </div>
