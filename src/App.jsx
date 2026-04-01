@@ -411,15 +411,32 @@ function Dashboard({transactions,cartoes,metas}) {
 
 // ─── RECEITAS ─────────────────────────────────────────────────────────────────
 
+const PER_PAGE=15;
+function Paginacao({total,pagina,setPagina}){
+  const pages=Math.ceil(total/PER_PAGE);
+  if(pages<=1)return null;
+  return(
+    <div className="flex items-center justify-between pt-2">
+      <p className="text-xs text-slate-500">{total} registros · página {pagina+1} de {pages}</p>
+      <div className="flex gap-1">
+        <button onClick={()=>setPagina(p=>Math.max(0,p-1))} disabled={pagina===0} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-400 disabled:opacity-40 hover:bg-slate-700 hover:text-white transition-colors">Anterior</button>
+        <button onClick={()=>setPagina(p=>Math.min(pages-1,p+1))} disabled={pagina>=pages-1} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-400 disabled:opacity-40 hover:bg-slate-700 hover:text-white transition-colors">Próxima</button>
+      </div>
+    </div>
+  );
+}
+
 function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
   const [modal,setModal]=useState(false);
   const [editando,setEditando]=useState(null);
   const [filtroMes,setFiltroMes]=useState(mesAtual());
+  const [pagina,setPagina]=useState(0);
   const [form,setForm]=useState({categoria:'',valor:'',data:today(),obs:'',contaId:null});
   const contas=getContasFlat();
   const mesesOpts=Array.from({length:12},(_,i)=>getMes(i-6));
   const lista=transactions.filter(t=>t.tipo==='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
   const total=lista.reduce((s,t)=>s+t.valor,0);
+  const pagItems=lista.slice(pagina*PER_PAGE,(pagina+1)*PER_PAGE);
 
   function abrir(tx){setForm(tx?{categoria:tx.categoria,valor:String(tx.valor),data:tx.data,obs:tx.obs||'',contaId:tx.contaId}:{categoria:'',valor:'',data:today(),obs:'',contaId:null});setEditando(tx?tx.id:null);setModal(true);}
   async function salvar(){
@@ -427,28 +444,60 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
     const conta=contas.find(c=>c.id===form.contaId);
     const tx={id:editando||uid(),tipo:'Receita',categoria:form.categoria,valor:money(form.valor),data:form.data,pagamento:'Recebimento',obs:form.obs,mes:form.data.slice(0,7),bancoId:conta?.bancoId||null,contaId:form.contaId};
     if(editando)await onUpdate(tx);else await onAdd(tx);
-    setModal(false);
+    setModal(false);setPagina(0);
   }
   async function excluir(id){if(confirm('Excluir receita?'))await onDelete(id);}
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between"><div><h1 className="text-2xl font-bold text-white">Receitas</h1><p className="text-slate-400 text-sm">Total: <span className="font-semibold text-green-400">{fmt(total)}</span></p></div><button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Receita</button></div>
-      <div className="flex items-center gap-3"><Filter size={16} className="text-slate-500"/><select value={filtroMes} onChange={e=>setFiltroMes(e.target.value)} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select></div>
-      <div className="flex flex-col gap-3">
-        {lista.length===0&&<div className="bg-slate-800 rounded-2xl p-10 text-center text-slate-500 shadow-sm border border-slate-700">Nenhuma receita em {getMesLabel(filtroMes)}</div>}
-        {lista.map(tx=>{const conta=contas.find(c=>c.id===tx.contaId);return(
-          <div key={tx.id} className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 flex items-center justify-between">
-            <div className="flex items-center gap-3"><div className="p-2.5 bg-green-500/20 rounded-xl"><ArrowUpCircle size={18} className="text-green-400"/></div><div><p className="font-semibold text-slate-100">{tx.categoria}</p><p className="text-xs text-slate-500">{tx.data.split('-').reverse().join('/')}{conta&&' · '+conta.bancoNome+' - '+conta.nome}{tx.obs&&' · '+tx.obs}</p></div></div>
-            <div className="flex items-center gap-3"><span className="font-bold text-green-400">{fmt(tx.valor)}</span><button onClick={()=>abrir(tx)} className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-500"><Edit size={15}/></button><button onClick={()=>excluir(tx.id)} className="p-1.5 hover:bg-red-900/30 rounded-lg text-red-400"><Trash2 size={15}/></button></div>
-          </div>
-        );})}
+      <div className="flex items-center justify-between">
+        <div><h1 className="text-2xl font-bold text-white">Receitas</h1><p className="text-slate-400 text-sm mt-0.5">Total: <span className="font-semibold text-green-400">{fmt(total)}</span></p></div>
+        <button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Receita</button>
       </div>
-      {modal&&(<Modal titulo="💰 Nova Receita" onClose={()=>setModal(false)} footer={<><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></>}>
+      <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+        <div className="flex items-center gap-3 p-4 border-b border-slate-700">
+          <Filter size={15} className="text-slate-500"/>
+          <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
+        </div>
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-slate-700">
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Data</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Categoria</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Conta</th>
+              <th className="text-right text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Valor</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Observações</th>
+              <th className="text-center text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pagItems.length===0&&(
+              <tr><td colSpan={6} className="text-center text-slate-500 py-12">Nenhuma receita em {getMesLabel(filtroMes)}</td></tr>
+            )}
+            {pagItems.map((tx,i)=>{const conta=contas.find(c=>c.id===tx.contaId);return(
+              <tr key={tx.id} className={'border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors'+(i===pagItems.length-1?' border-0':'')}>
+                <td className="px-4 py-3 text-sm text-slate-300 whitespace-nowrap">{tx.data.split('-').reverse().join('/')}</td>
+                <td className="px-4 py-3"><span className="text-sm font-medium text-slate-100">{tx.categoria}</span></td>
+                <td className="px-4 py-3 text-sm text-slate-400">{conta?conta.bancoNome+' – '+conta.nome:'—'}</td>
+                <td className="px-4 py-3 text-right font-semibold text-green-400 whitespace-nowrap">{fmt(tx.valor)}</td>
+                <td className="px-4 py-3 text-sm text-slate-500">{tx.obs||'—'}</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-center gap-1">
+                    <button onClick={()=>abrir(tx)} className="p-1.5 hover:bg-slate-600 rounded-lg text-slate-500 hover:text-slate-200 transition-colors"><Edit size={14}/></button>
+                    <button onClick={()=>excluir(tx.id)} className="p-1.5 hover:bg-red-900/40 rounded-lg text-slate-500 hover:text-red-400 transition-colors"><Trash2 size={14}/></button>
+                  </div>
+                </td>
+              </tr>
+            );})}
+          </tbody>
+        </table>
+        <div className="px-4 pb-4 pt-2"><Paginacao total={lista.length} pagina={pagina} setPagina={setPagina}/></div>
+      </div>
+      {modal&&(<Modal titulo={editando?'Editar Receita':'Nova Receita'} onClose={()=>setModal(false)} footer={<><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></>}>
         <Campo label="Categoria"><select value={form.categoria} onChange={e=>setForm({...form,categoria:e.target.value})} className={inp}><option value="">Selecione...</option>{CATEGORIAS['Receita'].map(c=><option key={c}>{c}</option>)}</select></Campo>
         <Campo label="Valor (R$)"><input type="number" step="0.01" min="0" value={form.valor} onChange={e=>setForm({...form,valor:e.target.value})} className={inp} placeholder="0,00"/></Campo>
         <Campo label="Data"><input type="date" value={form.data} onChange={e=>setForm({...form,data:e.target.value})} className={inp}/></Campo>
-        <Campo label="Conta Bancária *"><select value={form.contaId||''} onChange={e=>setForm({...form,contaId:e.target.value||null})} className={inp}><option value="">Selecione...</option>{contas.map(c=><option key={c.id} value={c.id}>{c.bancoNome} – {c.nome}</option>)}</select></Campo>
+        <Campo label="Conta Bancária"><select value={form.contaId||''} onChange={e=>setForm({...form,contaId:e.target.value||null})} className={inp}><option value="">Selecione...</option>{contas.map(c=><option key={c.id} value={c.id}>{c.bancoNome} – {c.nome}</option>)}</select></Campo>
         <Campo label="Observações"><input type="text" value={form.obs} onChange={e=>setForm({...form,obs:e.target.value})} className={inp} placeholder="Opcional"/></Campo>
       </Modal>)}
     </div>
@@ -462,6 +511,7 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
   const [editando,setEditando]=useState(null);
   const [filtroMes,setFiltroMes]=useState(mesAtual());
   const [filtroTipo,setFiltroTipo]=useState('');
+  const [pagina,setPagina]=useState(0);
   const [form,setForm]=useState({tipo:'Despesa Variável',categoria:'',valor:'',data:today(),pagamento:'',obs:'',contaId:null,cartaoId:null});
   const contas=getContasFlat();
   const mesesOpts=Array.from({length:12},(_,i)=>getMes(i-6));
@@ -469,7 +519,8 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
   let lista=transactions.filter(t=>t.tipo!=='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
   if(filtroTipo)lista=lista.filter(t=>t.tipo===filtroTipo);
   const total=lista.reduce((s,t)=>s+t.valor,0);
-  const corTipo=t=>t==='Despesa Fixa'?'text-orange-600 bg-orange-50':t==='Despesa Variável'?'text-red-600 bg-red-50':t==='Cartão de Crédito'?'text-blue-600 bg-blue-50':t==='Investimentos'?'text-purple-600 bg-purple-50':'text-gray-600 bg-gray-100';
+  const pagItems=lista.slice(pagina*PER_PAGE,(pagina+1)*PER_PAGE);
+  const badgeTipo=t=>t==='Despesa Fixa'?'bg-orange-500/20 text-orange-400':t==='Despesa Variável'?'bg-red-500/20 text-red-400':t==='Cartão de Crédito'?'bg-blue-500/20 text-blue-400':t==='Investimentos'?'bg-purple-500/20 text-purple-400':'bg-slate-700 text-slate-400';
 
   function abrir(tx){setForm(tx?{tipo:tx.tipo,categoria:tx.categoria,valor:String(tx.valor),data:tx.data,pagamento:tx.pagamento||'',obs:tx.obs||'',contaId:tx.contaId||null,cartaoId:tx.cartaoId||null}:{tipo:'Despesa Variável',categoria:'',valor:'',data:today(),pagamento:'',obs:'',contaId:null,cartaoId:null});setEditando(tx?tx.id:null);setModal(true);}
   async function salvar(){
@@ -478,7 +529,7 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
     const tx={id:editando||uid(),tipo:form.tipo,categoria:form.categoria,valor:money(form.valor),data:form.data,pagamento:form.pagamento,obs:form.obs,mes:form.data.slice(0,7),bancoId:conta?.bancoId||null,contaId:form.contaId||null,cartaoId:form.tipo==='Cartão de Crédito'?form.cartaoId:null};
     if(form.tipo==='Cartão de Crédito'&&form.cartaoId){const c=cartoes.find(x=>x.id===form.cartaoId);if(c){const ant=editando?(transactions.find(t=>t.id===editando)?.valor||0):0;await onUpdateCartao({...c,usado:money(c.usado-ant+tx.valor)});}}
     if(editando)await onUpdateTx(tx);else await onAddTx(tx);
-    setModal(false);
+    setModal(false);setPagina(0);
   }
   async function excluir(id){
     if(!confirm('Excluir despesa?'))return;
@@ -489,18 +540,53 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between"><div><h1 className="text-2xl font-bold text-white">Despesas</h1><p className="text-slate-400 text-sm">Total: <span className="font-semibold text-red-400">{fmt(total)}</span></p></div><button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Despesa</button></div>
-      <div className="flex items-center gap-3 flex-wrap"><Filter size={16} className="text-slate-500"/><select value={filtroMes} onChange={e=>setFiltroMes(e.target.value)} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select><select value={filtroTipo} onChange={e=>setFiltroTipo(e.target.value)} className={inp+' w-auto'}><option value="">Todos os tipos</option>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select></div>
-      <div className="flex flex-col gap-3">
-        {lista.length===0&&<div className="bg-slate-800 rounded-2xl p-10 text-center text-slate-500 shadow-sm border border-slate-700">Nenhuma despesa no período</div>}
-        {lista.map(tx=>{const conta=contas.find(c=>c.id===tx.contaId);const cartao=cartoes.find(c=>c.id===tx.cartaoId);return(
-          <div key={tx.id} className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 flex items-center justify-between">
-            <div className="flex items-center gap-3"><div className={'p-2.5 rounded-xl '+corTipo(tx.tipo)}><ArrowDownCircle size={18}/></div><div><div className="flex items-center gap-2"><p className="font-semibold text-slate-100">{tx.categoria}</p><span className={'text-xs px-2 py-0.5 rounded-full font-medium '+corTipo(tx.tipo)}>{tx.tipo}</span></div><p className="text-xs text-slate-500">{tx.data.split('-').reverse().join('/')}{tx.pagamento&&' · '+tx.pagamento}{cartao&&' · '+cartao.nome}{conta&&' · '+conta.bancoNome}{tx.obs&&' · '+tx.obs}</p></div></div>
-            <div className="flex items-center gap-3"><span className="font-bold text-red-400">{fmt(tx.valor)}</span><button onClick={()=>abrir(tx)} className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-500"><Edit size={15}/></button><button onClick={()=>excluir(tx.id)} className="p-1.5 hover:bg-red-900/30 rounded-lg text-red-400"><Trash2 size={15}/></button></div>
-          </div>
-        );})}
+      <div className="flex items-center justify-between">
+        <div><h1 className="text-2xl font-bold text-white">Despesas</h1><p className="text-slate-400 text-sm mt-0.5">Total: <span className="font-semibold text-red-400">{fmt(total)}</span></p></div>
+        <button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Despesa</button>
       </div>
-      {modal&&(<Modal titulo="💸 Nova Despesa" onClose={()=>setModal(false)} footer={<><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></>}>
+      <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+        <div className="flex items-center gap-3 p-4 border-b border-slate-700 flex-wrap">
+          <Filter size={15} className="text-slate-500"/>
+          <select value={filtroMes} onChange={e=>{setFiltroMes(e.target.value);setPagina(0);}} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select>
+          <select value={filtroTipo} onChange={e=>{setFiltroTipo(e.target.value);setPagina(0);}} className={inp+' w-auto'}><option value="">Todos os tipos</option>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select>
+        </div>
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-slate-700">
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Data</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Categoria</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Tipo</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Pagamento</th>
+              <th className="text-right text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Valor</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Observações</th>
+              <th className="text-center text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pagItems.length===0&&(
+              <tr><td colSpan={7} className="text-center text-slate-500 py-12">Nenhuma despesa no período</td></tr>
+            )}
+            {pagItems.map((tx,i)=>{const conta=contas.find(c=>c.id===tx.contaId);const cartao=cartoes.find(c=>c.id===tx.cartaoId);return(
+              <tr key={tx.id} className={'border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors'+(i===pagItems.length-1?' border-0':'')}>
+                <td className="px-4 py-3 text-sm text-slate-300 whitespace-nowrap">{tx.data.split('-').reverse().join('/')}</td>
+                <td className="px-4 py-3 text-sm font-medium text-slate-100">{tx.categoria}</td>
+                <td className="px-4 py-3"><span className={'text-xs px-2 py-0.5 rounded-full font-medium '+badgeTipo(tx.tipo)}>{tx.tipo}</span></td>
+                <td className="px-4 py-3 text-sm text-slate-400">{cartao?'Cartão '+cartao.nome:tx.pagamento||'—'}</td>
+                <td className="px-4 py-3 text-right font-semibold text-red-400 whitespace-nowrap">{fmt(tx.valor)}</td>
+                <td className="px-4 py-3 text-sm text-slate-500">{tx.obs||'—'}</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-center gap-1">
+                    <button onClick={()=>abrir(tx)} className="p-1.5 hover:bg-slate-600 rounded-lg text-slate-500 hover:text-slate-200 transition-colors"><Edit size={14}/></button>
+                    <button onClick={()=>excluir(tx.id)} className="p-1.5 hover:bg-red-900/40 rounded-lg text-slate-500 hover:text-red-400 transition-colors"><Trash2 size={14}/></button>
+                  </div>
+                </td>
+              </tr>
+            );})}
+          </tbody>
+        </table>
+        <div className="px-4 pb-4 pt-2"><Paginacao total={lista.length} pagina={pagina} setPagina={setPagina}/></div>
+      </div>
+      {modal&&(<Modal titulo={editando?'Editar Despesa':'Nova Despesa'} onClose={()=>setModal(false)} footer={<><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></>}>
         <Campo label="Tipo"><select value={form.tipo} onChange={e=>setForm({...form,tipo:e.target.value,categoria:''})} className={inp}>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select></Campo>
         <Campo label="Categoria"><select value={form.categoria} onChange={e=>setForm({...form,categoria:e.target.value})} className={inp}><option value="">Selecione...</option>{(CATEGORIAS[form.tipo]||[]).map(c=><option key={c}>{c}</option>)}</select></Campo>
         <Campo label="Valor (R$)"><input type="number" step="0.01" min="0" value={form.valor} onChange={e=>setForm({...form,valor:e.target.value})} className={inp} placeholder="0,00"/></Campo>
