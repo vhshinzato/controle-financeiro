@@ -249,7 +249,7 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-red-50 flex">
       {/* Sidebar */}
       <aside className={'bg-slate-900 flex flex-col shrink-0 sticky top-0 h-screen overflow-y-auto transition-all duration-300 '+(sidebarOpen?'w-56':'w-16')}>
         {/* Header */}
