@@ -75,9 +75,9 @@ function Campo({label,children,required}) {
     </div>
   );
 }
-const inp = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder:text-gray-400";
-const btnP = "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors";
-const btnS = "bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors";
+const inp = "cf-input";
+const btnP = "cf-btn-primary";
+const btnS = "cf-btn-secondary";
 
 function CardResumo({titulo,valor,icon:Icon,cor,sub,destaque}) {
   if(destaque) return (
@@ -249,7 +249,7 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-red-50 flex">
+    <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
       <aside className={'bg-slate-900 flex flex-col shrink-0 sticky top-0 h-screen overflow-y-auto transition-all duration-300 '+(sidebarOpen?'w-56':'w-16')}>
         {/* Header */}

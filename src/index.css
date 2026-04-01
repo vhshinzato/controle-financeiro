@@ -10,3 +10,56 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
   background: #f1f5f9;
 }
+
+.cf-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.cf-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.cf-input::placeholder {
+  color: #9ca3af;
+}
+
+.cf-btn-primary {
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.cf-btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.cf-btn-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.cf-btn-secondary:hover {
+  background-color: #d1d5db;
+}
