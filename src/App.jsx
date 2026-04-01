@@ -249,48 +249,68 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 flex">
       {/* Sidebar */}
-      <aside className={'bg-slate-900 flex flex-col shrink-0 sticky top-0 h-screen overflow-y-auto transition-all duration-300 '+(sidebarOpen?'w-56':'w-16')}>
+      <aside style={{background:'#0f172a',display:'flex',flexDirection:'column',flexShrink:0,position:'sticky',top:0,height:'100vh',overflowY:'auto',transition:'width 0.3s',width:sidebarOpen?'220px':'68px',borderRight:'1px solid #1e293b'}}>
         {/* Header */}
-        <div className={'flex items-center py-5 px-3 '+(sidebarOpen?'gap-3 justify-between':'justify-center')}>
+        <div style={{display:'flex',alignItems:'center',padding:'24px 16px 20px',justifyContent:sidebarOpen?'space-between':'center',gap:'12px'}}>
           {sidebarOpen&&(
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="p-2 bg-indigo-500 rounded-xl shrink-0 shadow-lg shadow-indigo-900/50"><Wallet size={17} className="text-white"/></div>
-              <div className="min-w-0"><p className="text-sm font-bold text-white leading-tight truncate">Controle</p><p className="text-xs text-slate-400 leading-tight">Financeiro</p></div>
+            <div style={{display:'flex',alignItems:'center',gap:'10px',minWidth:0}}>
+              <div style={{padding:'8px',background:'linear-gradient(135deg,#6366f1,#4f46e5)',borderRadius:'10px',flexShrink:0,display:'flex',boxShadow:'0 4px 12px rgba(99,102,241,0.4)'}}>
+                <Wallet size={16} color="#fff"/>
+              </div>
+              <div style={{minWidth:0}}>
+                <p style={{fontSize:'14px',fontWeight:700,color:'#f1f5f9',lineHeight:'1.2',letterSpacing:'-0.01em'}}>Controle</p>
+                <p style={{fontSize:'11px',color:'#475569',lineHeight:'1.2',marginTop:'1px'}}>Financeiro</p>
+              </div>
             </div>
           )}
-          <button onClick={()=>setSidebarOpen(o=>!o)} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors shrink-0" title={sidebarOpen?'Recolher':'Expandir'}>
-            {sidebarOpen?<PanelLeftClose size={17}/>:<PanelLeftOpen size={17}/>}
+          <button onClick={()=>setSidebarOpen(o=>!o)} style={{padding:'6px',background:'transparent',border:'none',cursor:'pointer',color:'#475569',borderRadius:'8px',display:'flex',alignItems:'center',flexShrink:0,transition:'color 0.15s'}} onMouseOver={e=>e.currentTarget.style.color='#94a3b8'} onMouseOut={e=>e.currentTarget.style.color='#475569'}>
+            {sidebarOpen?<PanelLeftClose size={16}/>:<PanelLeftOpen size={16}/>}
           </button>
         </div>
         {/* Nav */}
-        <nav className="flex-1 px-2 flex flex-col gap-0.5 overflow-y-auto">
-          {tabs.map(t=>(
-            <div key={t.id} className="relative group">
-              <button onClick={()=>setAba(t.id)}
-                className={'flex items-center gap-3 py-2.5 rounded-xl text-sm font-medium w-full transition-all '+(sidebarOpen?'px-3':'px-0 justify-center')+(aba===t.id?' bg-indigo-600 text-white shadow-lg shadow-indigo-900/40':' text-slate-400 hover:bg-white/5 hover:text-white')}>
-                <t.icon size={16} className="shrink-0"/>
-                {sidebarOpen&&<span>{t.label}</span>}
-              </button>
-              {!sidebarOpen&&(
-                <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-slate-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-xl z-50 border border-white/10">
-                  {t.label}
-                </span>
-              )}
-            </div>
-          ))}
+        <nav style={{flex:1,padding:'0 10px',display:'flex',flexDirection:'column',gap:'2px',overflowY:'auto'}}>
+          {tabs.map(t=>{
+            const active=aba===t.id;
+            return(
+              <div key={t.id} style={{position:'relative'}} className="group">
+                <button onClick={()=>setAba(t.id)} style={{
+                  display:'flex',alignItems:'center',gap:'10px',width:'100%',border:'none',cursor:'pointer',
+                  borderRadius:'10px',transition:'all 0.15s',
+                  padding: sidebarOpen ? '10px 12px' : '10px 0',
+                  justifyContent: sidebarOpen ? 'flex-start' : 'center',
+                  background: active ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'transparent',
+                  color: active ? '#fff' : '#64748b',
+                  boxShadow: active ? '0 4px 12px rgba(99,102,241,0.3)' : 'none',
+                  fontWeight: active ? 600 : 500,
+                  fontSize:'13.5px',
+                  letterSpacing:'-0.01em',
+                }} onMouseOver={e=>{if(!active){e.currentTarget.style.background='rgba(255,255,255,0.05)';e.currentTarget.style.color='#cbd5e1';}}} onMouseOut={e=>{if(!active){e.currentTarget.style.background='transparent';e.currentTarget.style.color='#64748b';}}}>
+                  <t.icon size={17} style={{flexShrink:0}}/>
+                  {sidebarOpen&&<span>{t.label}</span>}
+                </button>
+                {!sidebarOpen&&(
+                  <span style={{position:'absolute',left:'calc(100% + 12px)',top:'50%',transform:'translateY(-50%)',background:'#1e293b',color:'#f1f5f9',fontSize:'12px',padding:'6px 10px',borderRadius:'8px',whiteSpace:'nowrap',pointerEvents:'none',border:'1px solid #334155',boxShadow:'0 4px 16px rgba(0,0,0,0.4)',zIndex:50}} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    {t.label}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </nav>
         {/* Footer */}
-        <div className={'border-t border-white/5 py-3 px-2 '+(sidebarOpen?'':'flex justify-center')}>
+        <div style={{borderTop:'1px solid #1e293b',padding:'16px 10px',display:'flex',justifyContent:sidebarOpen?'flex-start':'center'}}>
           {sidebarOpen?(
-            <div className="flex items-center gap-2 px-1">
-              <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">{session.user.email[0].toUpperCase()}</div>
-              <p className="text-xs text-slate-400 truncate flex-1">{session.user.email}</p>
-              <button onClick={()=>supabase.auth.signOut()} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white shrink-0 transition-colors" title="Sair"><LogOut size={14}/></button>
+            <div style={{display:'flex',alignItems:'center',gap:'10px',width:'100%',padding:'0 4px'}}>
+              <div style={{width:'30px',height:'30px',borderRadius:'50%',background:'linear-gradient(135deg,#6366f1,#4f46e5)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:'12px',fontWeight:700,flexShrink:0}}>
+                {session.user.email[0].toUpperCase()}
+              </div>
+              <p style={{fontSize:'12px',color:'#475569',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{session.user.email}</p>
+              <button onClick={()=>supabase.auth.signOut()} style={{padding:'6px',background:'transparent',border:'none',cursor:'pointer',color:'#475569',borderRadius:'8px',display:'flex',flexShrink:0}} onMouseOver={e=>e.currentTarget.style.color='#94a3b8'} onMouseOut={e=>e.currentTarget.style.color='#475569'} title="Sair"><LogOut size={14}/></button>
             </div>
           ):(
-            <div className="relative group">
-              <button onClick={()=>supabase.auth.signOut()} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white transition-colors" title="Sair"><LogOut size={14}/></button>
-              <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-slate-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-xl z-50 border border-white/10">Sair</span>
+            <div style={{position:'relative'}} className="group">
+              <button onClick={()=>supabase.auth.signOut()} style={{padding:'8px',background:'transparent',border:'none',cursor:'pointer',color:'#475569',borderRadius:'8px',display:'flex'}} onMouseOver={e=>e.currentTarget.style.color='#94a3b8'} onMouseOut={e=>e.currentTarget.style.color='#475569'} title="Sair"><LogOut size={15}/></button>
+              <span style={{position:'absolute',left:'calc(100% + 12px)',top:'50%',transform:'translateY(-50%)',background:'#1e293b',color:'#f1f5f9',fontSize:'12px',padding:'6px 10px',borderRadius:'8px',whiteSpace:'nowrap',pointerEvents:'none',border:'1px solid #334155',zIndex:50}} className="opacity-0 group-hover:opacity-100 transition-opacity">Sair</span>
             </div>
           )}
         </div>
