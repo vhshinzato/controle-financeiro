@@ -434,7 +434,7 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
   const [pagina,setPagina]=useState(0);
   const [form,setForm]=useState({categoria:'',valor:'',data:today(),obs:'',contaId:null});
   const contas=getContasFlat();
-  const mesesOpts=Array.from({length:12},(_,i)=>getMes(i-6));
+  const mesesOpts=Array.from({length:27},(_,i)=>getMes(i-24));
   let lista=transactions.filter(t=>t.tipo==='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
   if(filtroCategoria)lista=lista.filter(t=>t.categoria===filtroCategoria);
   const total=lista.reduce((s,t)=>s+t.valor,0);
@@ -517,7 +517,7 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
   const [pagina,setPagina]=useState(0);
   const [form,setForm]=useState({tipo:'Despesa Variável',categoria:'',valor:'',data:today(),pagamento:'',obs:'',contaId:null,cartaoId:null});
   const contas=getContasFlat();
-  const mesesOpts=Array.from({length:12},(_,i)=>getMes(i-6));
+  const mesesOpts=Array.from({length:27},(_,i)=>getMes(i-24));
   const tiposDespesa=['Despesa Fixa','Despesa Variável','Cartão de Crédito','Investimentos'];
   let lista=transactions.filter(t=>t.tipo!=='Receita'&&t.mes===filtroMes).sort((a,b)=>b.data.localeCompare(a.data));
   if(filtroTipo)lista=lista.filter(t=>t.tipo===filtroTipo);
