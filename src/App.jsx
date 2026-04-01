@@ -454,7 +454,7 @@ function loadPluggyScript() {
     }
     const s=document.createElement('script');
     s.id='pluggy-sdk';
-    s.src='https://cdn.pluggy.ai/pluggy-connect/v2/pluggy-connect.js';
+    s.src='https://cdn.pluggy.ai/pluggy-connect/latest/pluggy-connect.js';
     s.onload=resolve;s.onerror=reject;
     document.head.appendChild(s);
   });
