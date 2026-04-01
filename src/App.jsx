@@ -299,8 +299,8 @@ export default function App() {
         </div>
       </aside>
       {/* Content */}
-      <main className="flex-1 min-h-screen overflow-x-hidden px-10 py-7">
-        <div className="max-w-5xl mx-auto">
+      <main className="flex-1 min-h-screen overflow-x-hidden" style={{padding:'28px 48px'}}>
+        <div>
           {aba==='dashboard'    && <Dashboard transactions={transactions} cartoes={cartoes} metas={metas}/>}
           {aba==='receitas'     && <Receitas transactions={transactions} getContasFlat={getContasFlat} onAdd={addTx} onUpdate={updateTx} onDelete={deleteTx}/>}
           {aba==='despesas'     && <Despesas transactions={transactions} cartoes={cartoes} getContasFlat={getContasFlat} onAddTx={addTx} onUpdateTx={updateTx} onDeleteTx={deleteTx} onUpdateCartao={updateCartao}/>}
