@@ -54,14 +54,14 @@ const dfToDB = (df,uid) => ({id:df.id,user_id:uid,categoria:df.categoria,valor:d
 
 function Modal({titulo,onClose,children,footer}) {
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col border border-gray-200">
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900">{titulo}</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"><X size={18}/></button>
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="bg-slate-800 rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col border border-slate-700">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-700">
+          <h2 className="text-lg font-bold text-white">{titulo}</h2>
+          <button onClick={onClose} className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"><X size={18}/></button>
         </div>
         <div className="overflow-y-auto px-6 py-4 flex flex-col gap-4 flex-1">{children}</div>
-        {footer && <div className="px-6 py-4 border-t border-gray-100 flex gap-3 bg-gray-50 rounded-b-xl">{footer}</div>}
+        {footer && <div className="px-6 py-4 border-t border-slate-700 flex gap-3 bg-slate-900 rounded-b-xl">{footer}</div>}
       </div>
     </div>
   );
@@ -69,8 +69,8 @@ function Modal({titulo,onClose,children,footer}) {
 function Campo({label,children,required}) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="block text-sm font-medium text-gray-700">
-        {label}{required&&<span className="text-red-500 ml-0.5">*</span>}
+      <label className="block text-sm font-medium text-slate-300">
+        {label}{required&&<span className="text-red-400 ml-0.5">*</span>}
       </label>
       {children}
     </div>
@@ -82,7 +82,7 @@ const btnS = "cf-btn-secondary";
 
 function CardResumo({titulo,valor,icon:Icon,cor,sub,destaque}) {
   if(destaque) return (
-    <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl p-5 shadow-lg text-white col-span-2 lg:col-span-1">
+    <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl p-5 shadow-lg shadow-indigo-900/40 text-white col-span-2 lg:col-span-1">
       <div className="flex items-start justify-between mb-4">
         <p className="text-sm text-indigo-200 font-medium">{titulo}</p>
         <div className="p-2 bg-white/20 rounded-xl"><Icon size={18}/></div>
@@ -92,20 +92,20 @@ function CardResumo({titulo,valor,icon:Icon,cor,sub,destaque}) {
     </div>
   );
   const styles={
-    green:{border:'border-l-4 border-green-400',icon:'bg-green-50 text-green-600'},
-    red:  {border:'border-l-4 border-red-400',  icon:'bg-red-50 text-red-600'},
-    blue: {border:'border-l-4 border-blue-400', icon:'bg-blue-50 text-blue-600'},
-    indigo:{border:'border-l-4 border-indigo-400',icon:'bg-indigo-50 text-indigo-600'},
+    green:{icon:'bg-green-500/20 text-green-400',val:'text-green-400'},
+    red:  {icon:'bg-red-500/20 text-red-400',    val:'text-red-400'},
+    blue: {icon:'bg-blue-500/20 text-blue-400',  val:'text-blue-400'},
+    indigo:{icon:'bg-indigo-500/20 text-indigo-400',val:'text-indigo-400'},
   };
   const s=styles[cor]||styles.indigo;
   return (
-    <div className={'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 '+s.border}>
+    <div className="bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-700">
       <div className="flex items-start justify-between mb-3">
-        <p className="text-sm text-gray-500 font-medium">{titulo}</p>
+        <p className="text-sm text-slate-400 font-medium">{titulo}</p>
         <div className={'p-2 rounded-xl '+s.icon}><Icon size={17}/></div>
       </div>
-      <p className="text-2xl font-bold text-gray-800 tracking-tight">{fmt(valor)}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+      <p className={'text-2xl font-bold tracking-tight '+s.val}>{fmt(valor)}</p>
+      {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
     </div>
   );
 }
@@ -240,7 +240,7 @@ export default function App() {
   function getContasFlat(){return bancos.flatMap(b=>(b.contas||[]).map(c=>({...c,bancoId:b.id,bancoNome:b.nome,bancoCor:b.cor})));}
 
   if(!session) return <AuthScreen/>;
-  if(loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="flex flex-col items-center gap-3 text-gray-400"><Loader2 size={32} className="animate-spin text-indigo-600"/><p className="text-sm">Carregando seus dados...</p></div></div>;
+  if(loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="flex flex-col items-center gap-3 text-slate-400"><Loader2 size={32} className="animate-spin text-indigo-400"/><p className="text-sm">Carregando seus dados...</p></div></div>;
 
   const tabs=[
     {id:'dashboard',label:'Dashboard',icon:Home},{id:'receitas',label:'Receitas',icon:ArrowUpCircle},
@@ -250,7 +250,7 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-950 flex">
       {/* Sidebar */}
       <aside className={'bg-slate-900 flex flex-col shrink-0 sticky top-0 h-screen overflow-y-auto transition-all duration-300 '+(sidebarOpen?'w-56':'w-16')}>
         {/* Header */}
@@ -332,52 +332,52 @@ function Dashboard({transactions,cartoes,metas}) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="mb-2"><h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1><p className="text-gray-400 text-sm mt-0.5">{getMesLabel(mes)} — visão geral do mês</p></div>
+      <div className="mb-2"><h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1><p className="text-slate-400 text-sm mt-0.5">{getMesLabel(mes)} — visão geral do mês</p></div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <CardResumo titulo="Saldo do Mês" valor={saldo} icon={Wallet} cor={saldo>=0?'indigo':'red'} destaque/>
         <CardResumo titulo="Receitas" valor={receitas} icon={TrendingUp} cor="green"/>
         <CardResumo titulo="Despesas" valor={despesas} icon={TrendingDown} cor="red"/>
         <CardResumo titulo="Cartões Usados" valor={totalCartoes} icon={CreditCard} cor="blue"/>
       </div>
-      {alertas.length>0&&<div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col gap-2"><div className="flex items-center gap-2 font-semibold text-amber-700"><AlertTriangle size={18}/>Alertas</div>{alertas.map((a,i)=><p key={i} className="text-sm text-amber-600 ml-6">{a}</p>)}</div>}
+      {alertas.length>0&&<div className="bg-amber-900/30 border border-amber-700/50 rounded-2xl p-4 flex flex-col gap-2"><div className="flex items-center gap-2 font-semibold text-amber-400"><AlertTriangle size={18}/>Alertas</div>{alertas.map((a,i)=><p key={i} className="text-sm text-amber-300 ml-6">{a}</p>)}</div>}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-800 mb-1">Receitas vs Despesas</h3>
-          <p className="text-xs text-gray-400 mb-5">Últimos 6 meses</p>
+        <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
+          <h3 className="font-semibold text-white mb-1">Receitas vs Despesas</h3>
+          <p className="text-xs text-slate-400 mb-5">Últimos 6 meses</p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={ultimos6} barGap={6} barCategoryGap="35%" margin={{top:4,right:8,left:0,bottom:0}}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
-              <XAxis dataKey="mes" tick={{fontSize:12,fill:'#94a3b8'}} axisLine={false} tickLine={false} interval={0}/>
-              <YAxis tick={{fontSize:11,fill:'#94a3b8'}} tickFormatter={v=>'R$'+(v/1000).toFixed(0)+'k'} axisLine={false} tickLine={false} width={48}/>
-              <Tooltip formatter={v=>fmt(v)} contentStyle={{borderRadius:'12px',border:'none',boxShadow:'0 4px 24px rgba(0,0,0,0.10)',padding:'10px 14px'}}/>
-              <Legend iconType="circle" iconSize={8} wrapperStyle={{paddingTop:'16px'}}/>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false}/>
+              <XAxis dataKey="mes" tick={{fontSize:12,fill:'#64748b'}} axisLine={false} tickLine={false} interval={0}/>
+              <YAxis tick={{fontSize:11,fill:'#64748b'}} tickFormatter={v=>'R$'+(v/1000).toFixed(0)+'k'} axisLine={false} tickLine={false} width={48}/>
+              <Tooltip formatter={v=>fmt(v)} contentStyle={{borderRadius:'12px',border:'1px solid #334155',background:'#1e293b',color:'#f1f5f9',boxShadow:'0 4px 24px rgba(0,0,0,0.40)',padding:'10px 14px'}}/>
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{paddingTop:'16px',color:'#94a3b8'}}/>
               <Bar dataKey="Receitas" fill="#22c55e" radius={[6,6,0,0]}/>
               <Bar dataKey="Despesas" fill="#f43f5e" radius={[6,6,0,0]}/>
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-800 mb-1">Despesas por Categoria</h3>
-          <p className="text-xs text-gray-400 mb-5">Mês atual</p>
+        <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
+          <h3 className="font-semibold text-white mb-1">Despesas por Categoria</h3>
+          <p className="text-xs text-slate-400 mb-5">Mês atual</p>
           {pizzaData.length>0?(
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie data={pizzaData} cx="50%" cy="46%" outerRadius={95} innerRadius={40} dataKey="value" paddingAngle={3}
-                  label={({name,percent})=>name+' '+(percent*100).toFixed(0)+'%'} labelLine={{stroke:'#cbd5e1',strokeWidth:1}}>
+                  label={({name,percent})=>name+' '+(percent*100).toFixed(0)+'%'} labelLine={{stroke:'#475569',strokeWidth:1}}>
                   {pizzaData.map((_,i)=><Cell key={i} fill={CORES[i%CORES.length]}/>)}
                 </Pie>
-                <Tooltip formatter={v=>fmt(v)} contentStyle={{borderRadius:'12px',border:'none',boxShadow:'0 4px 24px rgba(0,0,0,0.10)',padding:'10px 14px'}}/>
+                <Tooltip formatter={v=>fmt(v)} contentStyle={{borderRadius:'12px',border:'1px solid #334155',background:'#1e293b',color:'#f1f5f9',boxShadow:'0 4px 24px rgba(0,0,0,0.40)',padding:'10px 14px'}}/>
               </PieChart>
             </ResponsiveContainer>
-          ):<div className="h-[260px] flex flex-col items-center justify-center gap-2 text-gray-300"><FileText size={32}/><span className="text-sm">Sem despesas no mês</span></div>}
+          ):<div className="h-[260px] flex flex-col items-center justify-center gap-2 text-slate-600"><FileText size={32}/><span className="text-sm">Sem despesas no mês</span></div>}
         </div>
       </div>
       {(metas.gastoMensal>0||metas.limiteCartao>0)&&(
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-700 mb-4 flex items-center gap-2"><Target size={16}/>Metas do Mês</h3>
+        <div className="bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-700">
+          <h3 className="font-semibold text-slate-200 mb-4 flex items-center gap-2"><Target size={16}/>Metas do Mês</h3>
           <div className="flex flex-col gap-3">
-            {metas.gastoMensal>0&&<div><div className="flex justify-between text-sm mb-1"><span className="text-gray-600">Gasto Mensal</span><span className={despesas>metas.gastoMensal?'text-red-600 font-semibold':'text-gray-600'}>{fmt(despesas)} / {fmt(metas.gastoMensal)}</span></div><div className="bg-gray-100 rounded-full h-2"><div className={'h-2 rounded-full '+(despesas>metas.gastoMensal?'bg-red-500':'bg-indigo-500')} style={{width:Math.min((despesas/metas.gastoMensal)*100,100)+'%'}}/></div></div>}
-            {metas.limiteCartao>0&&<div><div className="flex justify-between text-sm mb-1"><span className="text-gray-600">Uso de Cartões</span><span className={totalCartoes>metas.limiteCartao?'text-red-600 font-semibold':'text-gray-600'}>{fmt(totalCartoes)} / {fmt(metas.limiteCartao)}</span></div><div className="bg-gray-100 rounded-full h-2"><div className={'h-2 rounded-full '+(totalCartoes>metas.limiteCartao?'bg-red-500':'bg-blue-500')} style={{width:Math.min((totalCartoes/metas.limiteCartao)*100,100)+'%'}}/></div></div>}
+            {metas.gastoMensal>0&&<div><div className="flex justify-between text-sm mb-1"><span className="text-slate-400">Gasto Mensal</span><span className={despesas>metas.gastoMensal?'text-red-400 font-semibold':'text-slate-400'}>{fmt(despesas)} / {fmt(metas.gastoMensal)}</span></div><div className="bg-slate-700 rounded-full h-2"><div className={'h-2 rounded-full '+(despesas>metas.gastoMensal?'bg-red-500':'bg-indigo-500')} style={{width:Math.min((despesas/metas.gastoMensal)*100,100)+'%'}}/></div></div>}
+            {metas.limiteCartao>0&&<div><div className="flex justify-between text-sm mb-1"><span className="text-slate-400">Uso de Cartões</span><span className={totalCartoes>metas.limiteCartao?'text-red-400 font-semibold':'text-slate-400'}>{fmt(totalCartoes)} / {fmt(metas.limiteCartao)}</span></div><div className="bg-slate-700 rounded-full h-2"><div className={'h-2 rounded-full '+(totalCartoes>metas.limiteCartao?'bg-red-500':'bg-blue-500')} style={{width:Math.min((totalCartoes/metas.limiteCartao)*100,100)+'%'}}/></div></div>}
           </div>
         </div>
       )}
@@ -409,14 +409,14 @@ function Receitas({transactions,getContasFlat,onAdd,onUpdate,onDelete}) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between"><div><h1 className="text-2xl font-bold text-gray-800">Receitas</h1><p className="text-gray-500 text-sm">Total: <span className="font-semibold text-green-600">{fmt(total)}</span></p></div><button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Receita</button></div>
-      <div className="flex items-center gap-3"><Filter size={16} className="text-gray-400"/><select value={filtroMes} onChange={e=>setFiltroMes(e.target.value)} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select></div>
+      <div className="flex items-center justify-between"><div><h1 className="text-2xl font-bold text-white">Receitas</h1><p className="text-slate-400 text-sm">Total: <span className="font-semibold text-green-400">{fmt(total)}</span></p></div><button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Receita</button></div>
+      <div className="flex items-center gap-3"><Filter size={16} className="text-slate-500"/><select value={filtroMes} onChange={e=>setFiltroMes(e.target.value)} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select></div>
       <div className="flex flex-col gap-3">
-        {lista.length===0&&<div className="bg-white rounded-2xl p-10 text-center text-gray-400 shadow-sm border border-gray-100">Nenhuma receita em {getMesLabel(filtroMes)}</div>}
+        {lista.length===0&&<div className="bg-slate-800 rounded-2xl p-10 text-center text-slate-500 shadow-sm border border-slate-700">Nenhuma receita em {getMesLabel(filtroMes)}</div>}
         {lista.map(tx=>{const conta=contas.find(c=>c.id===tx.contaId);return(
-          <div key={tx.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-3"><div className="p-2.5 bg-green-50 rounded-xl"><ArrowUpCircle size={18} className="text-green-600"/></div><div><p className="font-semibold text-gray-800">{tx.categoria}</p><p className="text-xs text-gray-400">{tx.data.split('-').reverse().join('/')}{conta&&' · '+conta.bancoNome+' - '+conta.nome}{tx.obs&&' · '+tx.obs}</p></div></div>
-            <div className="flex items-center gap-3"><span className="font-bold text-green-600">{fmt(tx.valor)}</span><button onClick={()=>abrir(tx)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400"><Edit size={15}/></button><button onClick={()=>excluir(tx.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-400"><Trash2 size={15}/></button></div>
+          <div key={tx.id} className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 flex items-center justify-between">
+            <div className="flex items-center gap-3"><div className="p-2.5 bg-green-500/20 rounded-xl"><ArrowUpCircle size={18} className="text-green-400"/></div><div><p className="font-semibold text-slate-100">{tx.categoria}</p><p className="text-xs text-slate-500">{tx.data.split('-').reverse().join('/')}{conta&&' · '+conta.bancoNome+' - '+conta.nome}{tx.obs&&' · '+tx.obs}</p></div></div>
+            <div className="flex items-center gap-3"><span className="font-bold text-green-400">{fmt(tx.valor)}</span><button onClick={()=>abrir(tx)} className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-500"><Edit size={15}/></button><button onClick={()=>excluir(tx.id)} className="p-1.5 hover:bg-red-900/30 rounded-lg text-red-400"><Trash2 size={15}/></button></div>
           </div>
         );})}
       </div>
@@ -465,14 +465,14 @@ function Despesas({transactions,cartoes,getContasFlat,onAddTx,onUpdateTx,onDelet
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between"><div><h1 className="text-2xl font-bold text-gray-800">Despesas</h1><p className="text-gray-500 text-sm">Total: <span className="font-semibold text-red-600">{fmt(total)}</span></p></div><button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Despesa</button></div>
-      <div className="flex items-center gap-3 flex-wrap"><Filter size={16} className="text-gray-400"/><select value={filtroMes} onChange={e=>setFiltroMes(e.target.value)} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select><select value={filtroTipo} onChange={e=>setFiltroTipo(e.target.value)} className={inp+' w-auto'}><option value="">Todos os tipos</option>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select></div>
+      <div className="flex items-center justify-between"><div><h1 className="text-2xl font-bold text-white">Despesas</h1><p className="text-slate-400 text-sm">Total: <span className="font-semibold text-red-400">{fmt(total)}</span></p></div><button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Despesa</button></div>
+      <div className="flex items-center gap-3 flex-wrap"><Filter size={16} className="text-slate-500"/><select value={filtroMes} onChange={e=>setFiltroMes(e.target.value)} className={inp+' w-auto'}>{mesesOpts.map(m=><option key={m} value={m}>{getMesLabel(m)}</option>)}</select><select value={filtroTipo} onChange={e=>setFiltroTipo(e.target.value)} className={inp+' w-auto'}><option value="">Todos os tipos</option>{tiposDespesa.map(t=><option key={t}>{t}</option>)}</select></div>
       <div className="flex flex-col gap-3">
-        {lista.length===0&&<div className="bg-white rounded-2xl p-10 text-center text-gray-400 shadow-sm border border-gray-100">Nenhuma despesa no período</div>}
+        {lista.length===0&&<div className="bg-slate-800 rounded-2xl p-10 text-center text-slate-500 shadow-sm border border-slate-700">Nenhuma despesa no período</div>}
         {lista.map(tx=>{const conta=contas.find(c=>c.id===tx.contaId);const cartao=cartoes.find(c=>c.id===tx.cartaoId);return(
-          <div key={tx.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-3"><div className={'p-2.5 rounded-xl '+corTipo(tx.tipo)}><ArrowDownCircle size={18}/></div><div><div className="flex items-center gap-2"><p className="font-semibold text-gray-800">{tx.categoria}</p><span className={'text-xs px-2 py-0.5 rounded-full font-medium '+corTipo(tx.tipo)}>{tx.tipo}</span></div><p className="text-xs text-gray-400">{tx.data.split('-').reverse().join('/')}{tx.pagamento&&' · '+tx.pagamento}{cartao&&' · '+cartao.nome}{conta&&' · '+conta.bancoNome}{tx.obs&&' · '+tx.obs}</p></div></div>
-            <div className="flex items-center gap-3"><span className="font-bold text-red-600">{fmt(tx.valor)}</span><button onClick={()=>abrir(tx)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400"><Edit size={15}/></button><button onClick={()=>excluir(tx.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-400"><Trash2 size={15}/></button></div>
+          <div key={tx.id} className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 flex items-center justify-between">
+            <div className="flex items-center gap-3"><div className={'p-2.5 rounded-xl '+corTipo(tx.tipo)}><ArrowDownCircle size={18}/></div><div><div className="flex items-center gap-2"><p className="font-semibold text-slate-100">{tx.categoria}</p><span className={'text-xs px-2 py-0.5 rounded-full font-medium '+corTipo(tx.tipo)}>{tx.tipo}</span></div><p className="text-xs text-slate-500">{tx.data.split('-').reverse().join('/')}{tx.pagamento&&' · '+tx.pagamento}{cartao&&' · '+cartao.nome}{conta&&' · '+conta.bancoNome}{tx.obs&&' · '+tx.obs}</p></div></div>
+            <div className="flex items-center gap-3"><span className="font-bold text-red-400">{fmt(tx.valor)}</span><button onClick={()=>abrir(tx)} className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-500"><Edit size={15}/></button><button onClick={()=>excluir(tx.id)} className="p-1.5 hover:bg-red-900/30 rounded-lg text-red-400"><Trash2 size={15}/></button></div>
           </div>
         );})}
       </div>
@@ -506,17 +506,17 @@ function Planejamento({despesasFuturas,transactions,onAdd,onUpdate,onDelete}) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between"><div><h1 className="text-2xl font-bold text-gray-800">Planejamento</h1><p className="text-gray-500 text-sm">Visão dos próximos 6 meses</p></div><button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Recorrente</button></div>
+      <div className="flex items-center justify-between"><div><h1 className="text-2xl font-bold text-white">Planejamento</h1><p className="text-slate-400 text-sm">Visão dos próximos 6 meses</p></div><button onClick={()=>abrir(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Nova Recorrente</button></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {proximos6.map(mes=>{const total=getTotalMes(mes);const isAtual=mes===mesHoje;const isPast=mes<mesHoje;return(
-          <div key={mes} className={'bg-white rounded-2xl p-5 shadow-sm border cursor-pointer transition-all '+(isAtual?'border-indigo-300 ring-2 ring-indigo-200':'border-gray-100 hover:border-gray-200')} onClick={()=>setExpandido(expandido===mes?null:mes)}>
-            <div className="flex items-center justify-between mb-2"><span className="font-semibold text-gray-700">{getMesLabel(mes)}</span><div className="flex items-center gap-2">{isAtual&&<span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">Atual</span>}{isPast&&<span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Passado</span>}{expandido===mes?<ChevronUp size={16} className="text-gray-400"/>:<ChevronDown size={16} className="text-gray-400"/>}</div></div>
-            <p className={'text-xl font-bold '+(total>0?'text-red-600':'text-gray-400')}>{fmt(total)}</p>
-            {expandido===mes&&<div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-3">{(isPast||isAtual?transactions.filter(t=>t.tipo!=='Receita'&&t.mes===mes):despesasFuturas.filter(df=>df.mes<=mes)).map((item,i)=><div key={item.id||i} className="flex justify-between text-sm"><span className="text-gray-600">{item.categoria}</span><span className="font-medium text-red-600">{fmt(item.valor)}</span></div>)}</div>}
+          <div key={mes} className={'bg-slate-800 rounded-2xl p-5 shadow-sm border cursor-pointer transition-all '+(isAtual?'border-indigo-500 ring-2 ring-indigo-500/30':'border-slate-700 hover:border-slate-600')} onClick={()=>setExpandido(expandido===mes?null:mes)}>
+            <div className="flex items-center justify-between mb-2"><span className="font-semibold text-slate-200">{getMesLabel(mes)}</span><div className="flex items-center gap-2">{isAtual&&<span className="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-medium">Atual</span>}{isPast&&<span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded-full">Passado</span>}{expandido===mes?<ChevronUp size={16} className="text-slate-500"/>:<ChevronDown size={16} className="text-slate-500"/>}</div></div>
+            <p className={'text-xl font-bold '+(total>0?'text-red-400':'text-slate-600')}>{fmt(total)}</p>
+            {expandido===mes&&<div className="mt-4 flex flex-col gap-2 border-t border-slate-700 pt-3">{(isPast||isAtual?transactions.filter(t=>t.tipo!=='Receita'&&t.mes===mes):despesasFuturas.filter(df=>df.mes<=mes)).map((item,i)=><div key={item.id||i} className="flex justify-between text-sm"><span className="text-slate-400">{item.categoria}</span><span className="font-medium text-red-400">{fmt(item.valor)}</span></div>)}</div>}
           </div>
         );})}
       </div>
-      {despesasFuturas.length>0&&<div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><h3 className="font-semibold text-gray-700 mb-4">Despesas Recorrentes</h3><div className="flex flex-col gap-2">{despesasFuturas.map(df=><div key={df.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"><div><p className="font-medium text-gray-700 text-sm">{df.categoria}</p><p className="text-xs text-gray-400">{df.tipo} · a partir de {getMesLabel(df.mes)}</p></div><div className="flex items-center gap-2"><span className="font-semibold text-red-600 text-sm">{fmt(df.valor)}/mês</span><button onClick={()=>abrir(df)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400"><Edit size={14}/></button><button onClick={()=>onDelete(df.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-400"><Trash2 size={14}/></button></div></div>)}</div></div>}
+      {despesasFuturas.length>0&&<div className="bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-700"><h3 className="font-semibold text-slate-200 mb-4">Despesas Recorrentes</h3><div className="flex flex-col gap-2">{despesasFuturas.map(df=><div key={df.id} className="flex items-center justify-between py-2 border-b border-slate-700 last:border-0"><div><p className="font-medium text-slate-300 text-sm">{df.categoria}</p><p className="text-xs text-slate-500">{df.tipo} · a partir de {getMesLabel(df.mes)}</p></div><div className="flex items-center gap-2"><span className="font-semibold text-red-400 text-sm">{fmt(df.valor)}/mês</span><button onClick={()=>abrir(df)} className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-500"><Edit size={14}/></button><button onClick={()=>onDelete(df.id)} className="p-1.5 hover:bg-red-900/30 rounded-lg text-red-400"><Trash2 size={14}/></button></div></div>)}</div></div>}
       {modal&&(<Modal titulo="📅 Despesa Recorrente" onClose={()=>setModal(false)} footer={<><button onClick={()=>setModal(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvar} className={btnP+' flex-1'}>Salvar</button></>}>
         <Campo label="Categoria / Nome"><input type="text" value={form.categoria} onChange={e=>setForm({...form,categoria:e.target.value})} className={inp} placeholder="Ex: Aluguel, Academia..."/></Campo>
         <Campo label="Valor Mensal (R$)"><input type="number" step="0.01" min="0" value={form.valor} onChange={e=>setForm({...form,valor:e.target.value})} className={inp} placeholder="0,00"/></Campo>
@@ -554,8 +554,8 @@ function Cartoes({cartoes,transactions,bancos,onAddCartao,onUpdateCartao,onDelet
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between"><h1 className="text-2xl font-bold text-gray-800">Cartões de Crédito</h1><button onClick={()=>abrirCartao(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Novo Cartão</button></div>
-      {cartoes.length===0&&<div className="bg-white rounded-2xl p-10 text-center text-gray-400 shadow-sm border border-gray-100">Nenhum cartão cadastrado</div>}
+      <div className="flex items-center justify-between"><h1 className="text-2xl font-bold text-white">Cartões de Crédito</h1><button onClick={()=>abrirCartao(null)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Novo Cartão</button></div>
+      {cartoes.length===0&&<div className="bg-slate-800 rounded-2xl p-10 text-center text-slate-500 shadow-sm border border-slate-700">Nenhum cartão cadastrado</div>}
       {cartoes.map(c=>{
         const pct=c.limite>0?Math.min((c.usado/c.limite)*100,100):0;
         const bv=getBanco(c.id);const isE=extratoAberto===c.id;
@@ -575,7 +575,7 @@ function Cartoes({cartoes,transactions,bancos,onAddCartao,onUpdateCartao,onDelet
       })}
       {modalCartao&&<Modal titulo={editandoCartao?'Editar Cartão':'Novo Cartão'} onClose={()=>setModalCartao(false)} footer={<><button onClick={()=>setModalCartao(false)} className={btnS+' flex-1'}>Cancelar</button><button onClick={salvarCartao} className={btnP+' flex-1'}>Salvar</button></>}><Campo label="Nome"><input type="text" value={formCartao.nome} onChange={e=>setFormCartao({...formCartao,nome:e.target.value})} className={inp} placeholder="Ex: Nubank, Itaú..."/></Campo><Campo label="Limite (R$)"><input type="number" step="0.01" min="0" value={formCartao.limite} onChange={e=>setFormCartao({...formCartao,limite:e.target.value})} className={inp} placeholder="0,00"/></Campo><Campo label="Dia Fechamento"><input type="number" min="1" max="31" value={formCartao.dataFechamento} onChange={e=>setFormCartao({...formCartao,dataFechamento:e.target.value})} className={inp} placeholder="Ex: 25"/></Campo><Campo label="Dia Vencimento"><input type="number" min="1" max="31" value={formCartao.dataVencimento} onChange={e=>setFormCartao({...formCartao,dataVencimento:e.target.value})} className={inp} placeholder="Ex: 5"/></Campo></Modal>}
       {modalCompra&&<Modal titulo={'Lançar Compra — '+(cartoes.find(c=>c.id===modalCompra)?.nome||'')} onClose={()=>setModalCompra(null)} footer={<><button onClick={()=>setModalCompra(null)} className={btnS+' flex-1'}>Cancelar</button><button onClick={()=>salvarCompra(modalCompra)} className={btnP+' flex-1'}>Lançar</button></>}><Campo label="Categoria"><select value={formCompra.categoria} onChange={e=>setFormCompra({...formCompra,categoria:e.target.value})} className={inp}><option value="">Selecione...</option>{CATEGORIAS['Cartão de Crédito'].map(c=><option key={c}>{c}</option>)}</select></Campo><Campo label="Valor Total (R$)"><input type="number" step="0.01" min="0" value={formCompra.valor} onChange={e=>setFormCompra({...formCompra,valor:e.target.value})} className={inp} placeholder="0,00"/></Campo><Campo label="Data"><input type="date" value={formCompra.data} onChange={e=>setFormCompra({...formCompra,data:e.target.value})} className={inp}/></Campo><Campo label="Parcelas"><select value={formCompra.parcelas} onChange={e=>setFormCompra({...formCompra,parcelas:e.target.value})} className={inp}>{Array.from({length:12},(_,i)=>i+1).map(n=><option key={n} value={n}>{n}x{formCompra.valor?' de '+fmt(money(formCompra.valor)/n):''}</option>)}</select></Campo><Campo label="Observações"><input type="text" value={formCompra.obs} onChange={e=>setFormCompra({...formCompra,obs:e.target.value})} className={inp} placeholder="Opcional"/></Campo></Modal>}
-      {vinculando&&<div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl"><h3 className="font-bold text-gray-800 mb-2">Confirmar vinculação</h3><p className="text-gray-600 text-sm mb-4">Vincular <strong>{cartoes.find(c=>c.id===vinculando.cartaoId)?.nome}</strong> ao banco <strong>{bancos.find(b=>b.id===vinculando.bancoId)?.nome}</strong>?</p><div className="flex gap-3"><button onClick={()=>setVinculando(null)} className={btnS+' flex-1'}>Cancelar</button><button onClick={()=>{onVincular(vinculando.cartaoId,vinculando.bancoId);setVinculando(null);}} className={btnP+' flex-1'}>Confirmar</button></div></div></div>}
+      {vinculando&&<div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"><div className="bg-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-xl border border-slate-700"><h3 className="font-bold text-white mb-2">Confirmar vinculação</h3><p className="text-slate-400 text-sm mb-4">Vincular <strong className="text-slate-200">{cartoes.find(c=>c.id===vinculando.cartaoId)?.nome}</strong> ao banco <strong className="text-slate-200">{bancos.find(b=>b.id===vinculando.bancoId)?.nome}</strong>?</p><div className="flex gap-3"><button onClick={()=>setVinculando(null)} className={btnS+' flex-1'}>Cancelar</button><button onClick={()=>{onVincular(vinculando.cartaoId,vinculando.bancoId);setVinculando(null);}} className={btnP+' flex-1'}>Confirmar</button></div></div></div>}
     </div>
   );
 }
@@ -597,15 +597,15 @@ function Bancos({bancos,transactions,onAddBanco,onDeleteBanco,onAddConta,onDelet
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between"><h1 className="text-2xl font-bold text-gray-800">Bancos e Contas</h1><button onClick={()=>setModalBanco(true)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Novo Banco</button></div>
-      {bancos.length===0&&<div className="bg-white rounded-2xl p-10 text-center text-gray-400 shadow-sm border border-gray-100">Nenhum banco cadastrado</div>}
+      <div className="flex items-center justify-between"><h1 className="text-2xl font-bold text-white">Bancos e Contas</h1><button onClick={()=>setModalBanco(true)} className={btnP+' flex items-center gap-2'}><Plus size={16}/>Novo Banco</button></div>
+      {bancos.length===0&&<div className="bg-slate-800 rounded-2xl p-10 text-center text-slate-500 shadow-sm border border-slate-700">Nenhum banco cadastrado</div>}
       {bancos.map(b=>{
         const totalBanco=(b.contas||[]).reduce((s,c)=>s+getSaldo(c),0);
         return(
-          <div key={b.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div key={b.id} className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden">
             <div className="flex items-center justify-between p-5" style={{borderLeft:'4px solid '+b.cor}}>
-              <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{backgroundColor:b.cor+'20'}}><Building2 size={20} style={{color:b.cor}}/></div><div><h3 className="font-bold text-gray-800">{b.nome}</h3><p className="text-sm text-gray-500">{(b.contas||[]).length} conta(s) · Saldo: <span className={totalBanco>=0?'font-semibold text-green-600':'font-semibold text-red-600'}>{fmt(totalBanco)}</span></p></div></div>
-              <div className="flex gap-2"><button onClick={()=>{setFormConta({tipo:'Corrente',nome:'',saldoInicial:''});setModalConta(b.id);}} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 text-xs flex items-center gap-1"><Plus size={14}/>Conta</button><button onClick={()=>onDeleteBanco(b.id)} className="p-2 hover:bg-red-50 rounded-lg text-red-400"><Trash2 size={15}/></button></div>
+              <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{backgroundColor:b.cor+'30'}}><Building2 size={20} style={{color:b.cor}}/></div><div><h3 className="font-bold text-white">{b.nome}</h3><p className="text-sm text-slate-400">{(b.contas||[]).length} conta(s) · Saldo: <span className={totalBanco>=0?'font-semibold text-green-400':'font-semibold text-red-400'}>{fmt(totalBanco)}</span></p></div></div>
+              <div className="flex gap-2"><button onClick={()=>{setFormConta({tipo:'Corrente',nome:'',saldoInicial:''});setModalConta(b.id);}} className="p-2 hover:bg-slate-700 rounded-lg text-slate-400 text-xs flex items-center gap-1"><Plus size={14}/>Conta</button><button onClick={()=>onDeleteBanco(b.id)} className="p-2 hover:bg-red-900/30 rounded-lg text-red-400"><Trash2 size={15}/></button></div>
             </div>
             {(b.contas||[]).map(c=>{
               const saldo=getSaldo(c);const isE=extratoAberto===c.id;const txF=getTxF(c.id);
@@ -613,12 +613,12 @@ function Bancos({bancos,transactions,onAddBanco,onDeleteBanco,onAddConta,onDelet
               const saidas=txF.filter(t=>t.tipo!=='Receita').reduce((s,t)=>s+t.valor,0);
               const ti=TIPOS_CONTA.find(t=>t.tipo===c.tipo)||TIPOS_CONTA[5];
               return(
-                <div key={c.id} className="border-t border-gray-50">
+                <div key={c.id} className="border-t border-slate-700">
                   <div className="flex items-center justify-between px-5 py-3">
-                    <div className="flex items-center gap-2.5"><span className="text-lg">{ti.label.split(' ')[0]}</span><div><p className="font-medium text-gray-700 text-sm">{c.nome}</p><p className="text-xs text-gray-400">Saldo inicial: {fmt(c.saldoInicial)}</p></div></div>
-                    <div className="flex items-center gap-3"><span className={'font-bold text-sm '+(saldo>=0?'text-green-600':'text-red-600')}>{fmt(saldo)}</span><button onClick={()=>{setExtratoAberto(isE?null:c.id);setFiltro({mes:'',ano:''});}} className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"><FileText size={13}/>{isE?'Fechar':'Extrato'}</button><button onClick={()=>onDeleteConta(b.id,c.id)} className="p-1 hover:bg-red-50 rounded text-red-400"><Trash2 size={13}/></button></div>
+                    <div className="flex items-center gap-2.5"><span className="text-lg">{ti.label.split(' ')[0]}</span><div><p className="font-medium text-slate-200 text-sm">{c.nome}</p><p className="text-xs text-slate-500">Saldo inicial: {fmt(c.saldoInicial)}</p></div></div>
+                    <div className="flex items-center gap-3"><span className={'font-bold text-sm '+(saldo>=0?'text-green-400':'text-red-400')}>{fmt(saldo)}</span><button onClick={()=>{setExtratoAberto(isE?null:c.id);setFiltro({mes:'',ano:''});}} className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"><FileText size={13}/>{isE?'Fechar':'Extrato'}</button><button onClick={()=>onDeleteConta(b.id,c.id)} className="p-1 hover:bg-red-900/30 rounded text-red-400"><Trash2 size={13}/></button></div>
                   </div>
-                  {isE&&<div className="mx-5 mb-4 bg-gray-50 rounded-xl p-4"><div className="flex items-center gap-3 mb-3 flex-wrap"><p className="font-semibold text-sm text-gray-700">Extrato</p><select value={filtro.mes} onChange={e=>setFiltro(f=>({...f,mes:e.target.value}))} className={inp+' !py-1.5 w-auto text-xs'}><option value="">Todos os meses</option>{MESES.map((m,i)=><option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}</select><select value={filtro.ano} onChange={e=>setFiltro(f=>({...f,ano:e.target.value}))} className={inp+' !py-1.5 w-auto text-xs'}><option value="">Todos os anos</option>{['2024','2025','2026'].map(a=><option key={a}>{a}</option>)}</select>{(filtro.mes||filtro.ano)&&<button onClick={()=>setFiltro({mes:'',ano:''})} className="text-xs text-gray-500 hover:text-gray-700">Limpar</button>}</div><div className="grid grid-cols-3 gap-2 mb-3"><div className="bg-white rounded-lg p-2.5 text-center"><p className="text-xs text-gray-500">Saldo Inicial</p><p className="font-semibold text-sm text-gray-700">{fmt(c.saldoInicial)}</p></div><div className="bg-white rounded-lg p-2.5 text-center"><p className="text-xs text-gray-500">Entradas</p><p className="font-semibold text-sm text-green-600">{fmt(entradas)}</p></div><div className="bg-white rounded-lg p-2.5 text-center"><p className="text-xs text-gray-500">Saídas</p><p className="font-semibold text-sm text-red-600">{fmt(saidas)}</p></div></div>{txF.length===0?<p className="text-xs text-gray-400 text-center py-3">Nenhuma movimentação</p>:<div className="flex flex-col max-h-52 overflow-y-auto">{txF.map(t=><div key={t.id} className="flex justify-between items-center text-xs py-1.5 border-b border-gray-100 last:border-0"><div><span className={t.tipo==='Receita'?'font-medium text-green-600':'font-medium text-red-600'}>{t.tipo==='Receita'?'+':'-'}</span><span className="text-gray-600 ml-1">{t.categoria}</span><span className="text-gray-400 ml-1">· {t.data.split('-').reverse().join('/')}</span></div><span className={t.tipo==='Receita'?'font-semibold text-green-600':'font-semibold text-red-600'}>{fmt(t.valor)}</span></div>)}</div>}</div>}
+                  {isE&&<div className="mx-5 mb-4 bg-slate-900 rounded-xl p-4"><div className="flex items-center gap-3 mb-3 flex-wrap"><p className="font-semibold text-sm text-slate-200">Extrato</p><select value={filtro.mes} onChange={e=>setFiltro(f=>({...f,mes:e.target.value}))} className={inp+' !py-1.5 w-auto text-xs'}><option value="">Todos os meses</option>{MESES.map((m,i)=><option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}</select><select value={filtro.ano} onChange={e=>setFiltro(f=>({...f,ano:e.target.value}))} className={inp+' !py-1.5 w-auto text-xs'}><option value="">Todos os anos</option>{['2024','2025','2026'].map(a=><option key={a}>{a}</option>)}</select>{(filtro.mes||filtro.ano)&&<button onClick={()=>setFiltro({mes:'',ano:''})} className="text-xs text-slate-500 hover:text-slate-300">Limpar</button>}</div><div className="grid grid-cols-3 gap-2 mb-3"><div className="bg-slate-800 rounded-lg p-2.5 text-center"><p className="text-xs text-slate-500">Saldo Inicial</p><p className="font-semibold text-sm text-slate-300">{fmt(c.saldoInicial)}</p></div><div className="bg-slate-800 rounded-lg p-2.5 text-center"><p className="text-xs text-slate-500">Entradas</p><p className="font-semibold text-sm text-green-400">{fmt(entradas)}</p></div><div className="bg-slate-800 rounded-lg p-2.5 text-center"><p className="text-xs text-slate-500">Saídas</p><p className="font-semibold text-sm text-red-400">{fmt(saidas)}</p></div></div>{txF.length===0?<p className="text-xs text-slate-500 text-center py-3">Nenhuma movimentação</p>:<div className="flex flex-col max-h-52 overflow-y-auto">{txF.map(t=><div key={t.id} className="flex justify-between items-center text-xs py-1.5 border-b border-slate-700 last:border-0"><div><span className={t.tipo==='Receita'?'font-medium text-green-400':'font-medium text-red-400'}>{t.tipo==='Receita'?'+':'-'}</span><span className="text-slate-400 ml-1">{t.categoria}</span><span className="text-slate-600 ml-1">· {t.data.split('-').reverse().join('/')}</span></div><span className={t.tipo==='Receita'?'font-semibold text-green-400':'font-semibold text-red-400'}>{fmt(t.valor)}</span></div>)}</div>}</div>}
                 </div>
               );
             })}
@@ -640,10 +640,10 @@ function Configuracoes({metas,onSave,userId}) {
 
   return (
     <div className="flex flex-col gap-6 max-w-lg">
-      <h1 className="text-2xl font-bold text-gray-800">Configurações</h1>
-      <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><h3 className="font-semibold text-gray-700 mb-4 flex items-center gap-2"><Target size={16}/>Metas Mensais</h3><div className="flex flex-col gap-4"><Campo label="Meta de Gasto Mensal (R$)"><input type="number" step="0.01" min="0" value={form.gastoMensal} onChange={e=>setForm({...form,gastoMensal:e.target.value})} className={inp} placeholder="Ex: 5000"/></Campo><Campo label="Meta de Uso de Cartões (R$)"><input type="number" step="0.01" min="0" value={form.limiteCartao} onChange={e=>setForm({...form,limiteCartao:e.target.value})} className={inp} placeholder="Ex: 2000"/></Campo><button onClick={salvar} className={btnP+' flex items-center gap-2 w-fit'+(salvo?' !bg-green-600':'')}>{salvo?<><CheckCircle size={16}/>Salvo!</>:'Salvar Metas'}</button></div></div>
-      <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><p className="text-xs text-gray-400 mb-1">Usuário</p><p className="text-sm font-medium text-gray-700 break-all">{userId}</p></div>
-      <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><h3 className="font-semibold text-red-600 mb-2 flex items-center gap-2"><AlertTriangle size={16}/>Zona de Perigo</h3><p className="text-sm text-gray-500 mb-4">Encerra a sessão e volta para o login.</p><button onClick={()=>supabase.auth.signOut()} className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"><LogOut size={15}/>Sair da conta</button></div>
+      <h1 className="text-2xl font-bold text-white">Configurações</h1>
+      <div className="bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-700"><h3 className="font-semibold text-slate-200 mb-4 flex items-center gap-2"><Target size={16}/>Metas Mensais</h3><div className="flex flex-col gap-4"><Campo label="Meta de Gasto Mensal (R$)"><input type="number" step="0.01" min="0" value={form.gastoMensal} onChange={e=>setForm({...form,gastoMensal:e.target.value})} className={inp} placeholder="Ex: 5000"/></Campo><Campo label="Meta de Uso de Cartões (R$)"><input type="number" step="0.01" min="0" value={form.limiteCartao} onChange={e=>setForm({...form,limiteCartao:e.target.value})} className={inp} placeholder="Ex: 2000"/></Campo><button onClick={salvar} className={btnP+' flex items-center gap-2 w-fit'+(salvo?' !bg-green-600':'')}>{salvo?<><CheckCircle size={16}/>Salvo!</>:'Salvar Metas'}</button></div></div>
+      <div className="bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-700"><p className="text-xs text-slate-500 mb-1">Usuário</p><p className="text-sm font-medium text-slate-300 break-all">{userId}</p></div>
+      <div className="bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-700"><h3 className="font-semibold text-red-400 mb-2 flex items-center gap-2"><AlertTriangle size={16}/>Zona de Perigo</h3><p className="text-sm text-slate-500 mb-4">Encerra a sessão e volta para o login.</p><button onClick={()=>supabase.auth.signOut()} className="bg-red-900/30 hover:bg-red-900/50 text-red-400 border border-red-700/50 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"><LogOut size={15}/>Sair da conta</button></div>
     </div>
   );
 }
