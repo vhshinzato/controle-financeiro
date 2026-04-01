@@ -163,6 +163,7 @@ export default function App() {
   const [loading,setLoading]=useState(true);
   const [aba,setAba]=useState('dashboard');
   const [sidebarOpen,setSidebarOpen]=useState(true);
+  const [tooltipHover,setTooltipHover]=useState(null);
   const [transactions,setTransactions]=useState([]);
   const [cartoes,setCartoes]=useState([]);
   const [bancos,setBancos]=useState([]);
@@ -249,7 +250,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 flex" style={{overflowX:'hidden'}}>
       {/* Sidebar */}
-      <aside style={{background:'#0f172a',display:'flex',flexDirection:'column',flexShrink:0,position:'sticky',top:0,height:'100vh',overflow:'visible',transition:'width 0.3s',width:sidebarOpen?'220px':'68px',borderRight:'1px solid #1e293b'}}>
+      <aside style={{background:'#0f172a',display:'flex',flexDirection:'column',flexShrink:0,position:'sticky',top:0,height:'100vh',overflow:'hidden',transition:'width 0.3s',width:sidebarOpen?'220px':'68px',borderRight:'1px solid #1e293b'}}>
         {/* Header */}
         <div style={{display:'flex',alignItems:'center',padding:'24px 16px 20px',justifyContent:sidebarOpen?'space-between':'center',gap:'12px'}}>
           {sidebarOpen&&(
@@ -268,28 +269,31 @@ export default function App() {
           </button>
         </div>
         {/* Nav */}
-        <nav style={{flex:1,padding:'0 10px',display:'flex',flexDirection:'column',gap:'2px',overflowY:'auto',overflowX:'visible'}}>
+        <nav style={{flex:1,padding:'0 10px',display:'flex',flexDirection:'column',gap:'2px'}}>
           {tabs.map(t=>{
             const active=aba===t.id;
             return(
-              <div key={t.id} style={{position:'relative'}} className="group">
-                <button onClick={()=>setAba(t.id)} style={{
-                  display:'flex',alignItems:'center',gap:'10px',width:'100%',border:'none',cursor:'pointer',
-                  borderRadius:'10px',transition:'all 0.15s',
-                  padding: sidebarOpen ? '10px 12px' : '10px 0',
-                  justifyContent: sidebarOpen ? 'flex-start' : 'center',
-                  background: active ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'transparent',
-                  color: active ? '#fff' : '#64748b',
-                  boxShadow: active ? '0 4px 12px rgba(99,102,241,0.3)' : 'none',
-                  fontWeight: active ? 600 : 500,
-                  fontSize:'13.5px',
-                  letterSpacing:'-0.01em',
-                }} onMouseOver={e=>{if(!active){e.currentTarget.style.background='rgba(255,255,255,0.05)';e.currentTarget.style.color='#cbd5e1';}}} onMouseOut={e=>{if(!active){e.currentTarget.style.background='transparent';e.currentTarget.style.color='#64748b';}}}>
+              <div key={t.id} style={{position:'relative'}}>
+                <button onClick={()=>setAba(t.id)}
+                  onMouseEnter={()=>!sidebarOpen&&setTooltipHover(t.id)}
+                  onMouseLeave={()=>setTooltipHover(null)}
+                  style={{
+                    display:'flex',alignItems:'center',gap:'10px',width:'100%',border:'none',cursor:'pointer',
+                    borderRadius:'10px',transition:'all 0.15s',
+                    padding: sidebarOpen ? '10px 12px' : '10px 0',
+                    justifyContent: sidebarOpen ? 'flex-start' : 'center',
+                    background: active ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'transparent',
+                    color: active ? '#fff' : '#64748b',
+                    boxShadow: active ? '0 4px 12px rgba(99,102,241,0.3)' : 'none',
+                    fontWeight: active ? 600 : 500,
+                    fontSize:'13.5px',
+                    letterSpacing:'-0.01em',
+                  }} onMouseOver={e=>{if(!active){e.currentTarget.style.background='rgba(255,255,255,0.05)';e.currentTarget.style.color='#cbd5e1';}}} onMouseOut={e=>{if(!active){e.currentTarget.style.background='transparent';e.currentTarget.style.color='#64748b';}}}>
                   <t.icon size={17} style={{flexShrink:0}}/>
                   {sidebarOpen&&<span>{t.label}</span>}
                 </button>
-                {!sidebarOpen&&(
-                  <span style={{position:'absolute',left:'calc(100% + 12px)',top:'50%',transform:'translateY(-50%)',background:'#1e293b',color:'#f1f5f9',fontSize:'12px',padding:'6px 10px',borderRadius:'8px',whiteSpace:'nowrap',pointerEvents:'none',border:'1px solid #334155',boxShadow:'0 4px 16px rgba(0,0,0,0.4)',zIndex:50}} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                {!sidebarOpen&&tooltipHover===t.id&&(
+                  <span style={{position:'fixed',left:'76px',background:'#1e293b',color:'#f1f5f9',fontSize:'12px',padding:'6px 12px',borderRadius:'8px',whiteSpace:'nowrap',pointerEvents:'none',border:'1px solid #334155',boxShadow:'0 4px 16px rgba(0,0,0,0.5)',zIndex:9999,transform:'translateY(-50%)',marginTop:'-1px'}}>
                     {t.label}
                   </span>
                 )}
@@ -308,9 +312,12 @@ export default function App() {
               <button onClick={()=>supabase.auth.signOut()} style={{padding:'6px',background:'transparent',border:'none',cursor:'pointer',color:'#475569',borderRadius:'8px',display:'flex',flexShrink:0}} onMouseOver={e=>e.currentTarget.style.color='#94a3b8'} onMouseOut={e=>e.currentTarget.style.color='#475569'} title="Sair"><LogOut size={14}/></button>
             </div>
           ):(
-            <div style={{position:'relative'}} className="group">
-              <button onClick={()=>supabase.auth.signOut()} style={{padding:'8px',background:'transparent',border:'none',cursor:'pointer',color:'#475569',borderRadius:'8px',display:'flex'}} onMouseOver={e=>e.currentTarget.style.color='#94a3b8'} onMouseOut={e=>e.currentTarget.style.color='#475569'} title="Sair"><LogOut size={15}/></button>
-              <span style={{position:'absolute',left:'calc(100% + 12px)',top:'50%',transform:'translateY(-50%)',background:'#1e293b',color:'#f1f5f9',fontSize:'12px',padding:'6px 10px',borderRadius:'8px',whiteSpace:'nowrap',pointerEvents:'none',border:'1px solid #334155',zIndex:50}} className="opacity-0 group-hover:opacity-100 transition-opacity">Sair</span>
+            <div style={{position:'relative'}}>
+              <button onClick={()=>supabase.auth.signOut()}
+                onMouseEnter={()=>setTooltipHover('sair')}
+                onMouseLeave={()=>setTooltipHover(null)}
+                style={{padding:'8px',background:'transparent',border:'none',cursor:'pointer',color:'#475569',borderRadius:'8px',display:'flex'}} onMouseOver={e=>e.currentTarget.style.color='#94a3b8'} onMouseOut={e=>e.currentTarget.style.color='#475569'} title="Sair"><LogOut size={15}/></button>
+              {tooltipHover==='sair'&&<span style={{position:'fixed',left:'76px',background:'#1e293b',color:'#f1f5f9',fontSize:'12px',padding:'6px 12px',borderRadius:'8px',whiteSpace:'nowrap',pointerEvents:'none',border:'1px solid #334155',boxShadow:'0 4px 16px rgba(0,0,0,0.5)',zIndex:9999,transform:'translateY(-50%)'}}>Sair</span>}
             </div>
           )}
         </div>
