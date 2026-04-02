@@ -640,15 +640,16 @@ function ImportarExtrato({onAdd,getContasFlat,cartoes,defaultTipo}) {
   const [transacoes,setTransacoes]=useState([]);
   const [selecionadas,setSelecionadas]=useState({});
   const [contaId,setContaId]=useState('');
+  const [senhaModal,setSenhaModal]=useState(null); // {file, inputRef}
+  const [senhaInput,setSenhaInput]=useState('');
   const contas=getContasFlat();
 
-  async function handleFile(e) {
-    const file=e.target.files?.[0];
-    if(!file)return;
+  async function enviarArquivo(file, senha) {
     setLoading(true);setErro('');setTransacoes([]);setSelecionadas({});
     try {
       const fd=new FormData();
       fd.append('file',file);
+      if(senha) fd.append('senha',senha);
       const {data:{session}}=await supabase.auth.getSession();
       const res=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/importar-extrato`,{
         method:'POST',
@@ -663,7 +664,22 @@ function ImportarExtrato({onAdd,getContasFlat,cartoes,defaultTipo}) {
       const sel={};txs.forEach((_,i)=>{sel[i]=true;});setSelecionadas(sel);
     } catch(e){setErro(e.message);}
     setLoading(false);
+  }
+
+  async function handleFile(e) {
+    const file=e.target.files?.[0];
+    if(!file)return;
     e.target.value='';
+    setAberto(true);
+    setSenhaModal({file});
+    setSenhaInput('');
+  }
+
+  async function confirmarSenha() {
+    if(!senhaModal)return;
+    setSenhaModal(null);
+    await enviarArquivo(senhaModal.file, senhaInput||undefined);
+    setSenhaInput('');
   }
 
   async function confirmar() {
@@ -686,8 +702,24 @@ function ImportarExtrato({onAdd,getContasFlat,cartoes,defaultTipo}) {
     <>
       <label className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg text-sm font-medium text-slate-300 border border-slate-600 hover:bg-slate-700 transition-colors">
         <Upload size={15}/> Importar Extrato
-        <input type="file" accept=".pdf,image/*" className="hidden" onChange={e=>{setAberto(true);handleFile(e);}}/>
+        <input type="file" accept=".pdf,image/*" className="hidden" onChange={handleFile}/>
       </label>
+      {senhaModal&&(
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+          <div style={{background:'#1e293b',borderRadius:'14px',width:'100%',maxWidth:'400px',border:'1px solid #334155',boxShadow:'0 25px 50px rgba(0,0,0,0.5)',padding:'24px',display:'flex',flexDirection:'column',gap:'16px'}}>
+            <h2 style={{fontSize:'16px',fontWeight:700,color:'#f1f5f9'}}>PDF protegido por senha</h2>
+            <p style={{fontSize:'13px',color:'#94a3b8'}}>Se o arquivo tiver senha, informe abaixo. Caso contrário, deixe em branco e clique em Continuar.</p>
+            <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+              <label style={{fontSize:'13px',fontWeight:500,color:'#94a3b8'}}>Senha do PDF (opcional)</label>
+              <input type="password" value={senhaInput} onChange={e=>setSenhaInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&confirmarSenha()} className={inp} placeholder="Deixe em branco se não tiver senha" autoFocus/>
+            </div>
+            <div style={{display:'flex',gap:'12px'}}>
+              <button onClick={()=>{setSenhaModal(null);setAberto(false);setSenhaInput('');}} className={btnS} style={{flex:1}}>Cancelar</button>
+              <button onClick={confirmarSenha} className={btnP} style={{flex:1}}>Continuar</button>
+            </div>
+          </div>
+        </div>
+      )}
       {aberto&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:50,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
           <div style={{background:'#1e293b',borderRadius:'14px',width:'100%',maxWidth:'640px',maxHeight:'90vh',display:'flex',flexDirection:'column',border:'1px solid #334155',boxShadow:'0 25px 50px rgba(0,0,0,0.5)'}}>
